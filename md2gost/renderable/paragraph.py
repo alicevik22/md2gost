@@ -1,7 +1,8 @@
 from copy import copy
 from typing import Generator, Any
 
-from docx.shared import Length, Parented, RGBColor
+from docx.shared import Length, Parented, RGBColor, Cm
+from docx.table import Table
 from docx.text.paragraph import Paragraph as DocxParagraph
 from docx.text.paragraph import Run as DocxRun
 from docx.enum.text import WD_LINE_SPACING
@@ -114,6 +115,10 @@ class Paragraph(Renderable):
     def render(self, previous_rendered: RenderedInfo, layout_state: LayoutState)\
             -> Generator[RenderedInfo | SubRenderable, None, None]:
         remaining_space = layout_state.remaining_page_height
+
+        # add space before if the previous element is table
+        if isinstance(previous_rendered, RenderedInfo) and isinstance(previous_rendered.docx_element, Table):
+            self._docx_paragraph.paragraph_format.space_before = Cm(0.35)  # todo: remake
 
         if self.page_break_before:
             layout_state.add_height(layout_state.remaining_page_height)
