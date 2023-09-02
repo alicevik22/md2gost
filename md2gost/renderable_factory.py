@@ -90,8 +90,8 @@ class RenderableFactory:
 
     @create.register
     def _(self, marko_equation: extended_markdown.Equation, caption_info: CaptionInfo):
-        formula = Equation(self._parent, marko_equation.latex_equation, caption_info)
-        return formula
+        equation = Equation(self._parent, marko_equation.latex_equation, caption_info)
+        yield equation
 
     @create.register
     def _(self, marko_list: extended_markdown.List, caption_info: CaptionInfo):
