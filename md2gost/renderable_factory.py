@@ -43,6 +43,8 @@ class RenderableFactory:
                 paragraph_or_link.add_image(child.dest, CaptionInfo(None, child.title))
             elif isinstance(child, extended_markdown.LineBreak):
                 pass  # ignore
+            elif isinstance(child, extended_markdown.Reference):
+                paragraph_or_link.add_reference(child.unique_name)
             elif isinstance(child, extended_markdown.InlineEquation):
                 paragraph_or_link.add_inline_equation(child.latex_equation)
             elif isinstance(child, (extended_markdown.Link, extended_markdown.Url)):
@@ -77,7 +79,7 @@ class RenderableFactory:
 
     @create.register
     def _(self, marko_equation: extended_markdown.Equation, caption_info: CaptionInfo):
-        formula = Equation(self._parent, marko_equation.latex_equation)
+        formula = Equation(self._parent, marko_equation.latex_equation, caption_info)
         return formula
 
     @create.register

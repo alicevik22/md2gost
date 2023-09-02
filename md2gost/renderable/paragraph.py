@@ -11,6 +11,7 @@ from . import Renderable
 from .caption import CaptionInfo
 from .image import Image
 from .paragraph_sizer import ParagraphSizer
+from ..docx_elements import create_field
 from ..layout_tracker import LayoutState
 from ..sub_renderable import SubRenderable
 from ..util import create_element
@@ -71,6 +72,9 @@ class Paragraph(Renderable):
 
     def add_image(self, path: str, caption_info: CaptionInfo):
         self._images.append(Image(self._parent, path, caption_info))
+
+    def add_reference(self, unique_name: str):
+        self._docx_paragraph._p.append(create_field("?", f"REF {unique_name} \\h"))
 
     def add_link(self, url: str):
         link = Link(url, self._docx_paragraph)
