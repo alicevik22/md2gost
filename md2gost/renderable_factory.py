@@ -43,6 +43,8 @@ class RenderableFactory:
                 paragraph_or_link.add_run(child.children, is_italic=True)
             elif isinstance(child, (extended_markdown.LineBreak, extended_markdown.Image)):
                 pass  # ignore
+            elif isinstance(child, extended_markdown.Reference):
+                paragraph_or_link.add_reference(child.unique_name)
             elif isinstance(child, extended_markdown.InlineEquation):
                 paragraph_or_link.add_inline_equation(child.latex_equation)
             elif isinstance(child, (extended_markdown.Link, extended_markdown.Url)):
@@ -88,8 +90,8 @@ class RenderableFactory:
 
     @create.register
     def _(self, marko_equation: extended_markdown.Equation, caption_info: CaptionInfo):
-        formula = Equation(self._parent, marko_equation.latex_equation)
-        yield formula
+        formula = Equation(self._parent, marko_equation.latex_equation, caption_info)
+        return formula
 
     @create.register
     def _(self, marko_list: extended_markdown.List, caption_info: CaptionInfo):

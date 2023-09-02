@@ -12,6 +12,7 @@ from . import Renderable
 from .caption import CaptionInfo
 from .image import Image
 from .paragraph_sizer import ParagraphSizer
+from ..docx_elements import create_field
 from ..layout_tracker import LayoutState
 from ..util import create_element
 from ..rendered_info import RenderedInfo
@@ -67,6 +68,9 @@ class Paragraph(Renderable):
             if i != len(parts)-1:
                 self._docx_paragraph.add_run()._element.\
                     append(create_element("w:noBreakHyphen"))
+
+    def add_reference(self, unique_name: str):
+        self._docx_paragraph._p.append(create_field("?", f"REF {unique_name} \\h"))
 
     def add_link(self, url: str):
         link = Link(url, self._docx_paragraph)

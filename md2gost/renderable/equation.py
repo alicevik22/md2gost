@@ -1,10 +1,12 @@
 from typing import Generator
+from uuid import uuid4
 
 from docx.enum.table import WD_CELL_VERTICAL_ALIGNMENT
 from docx.oxml import CT_Tbl
 from docx.shared import Pt, Twips
 from docx.table import Table
 
+from .caption import CaptionInfo
 from .requires_numbering import RequiresNumbering
 from ..layout_tracker import LayoutState
 from ..renderable import Renderable
@@ -17,7 +19,7 @@ _HEIGHT = Pt(50)
 
 
 class Equation(Renderable, RequiresNumbering):
-    def __init__(self, parent, latex_formula: str):
+    def __init__(self, parent, latex_formula: str, caption_info: CaptionInfo):
         super().__init__("Формула")
         word_math = latex_to_omml(latex_formula)
 
@@ -44,14 +46,25 @@ class Equation(Renderable, RequiresNumbering):
         left_cell.vertical_alignment = \
             WD_CELL_VERTICAL_ALIGNMENT.CENTER
 
+        uid = uuid4().hex
+
         right_paragraph = right_cell.paragraphs[0]
         right_paragraph.style = "Formula Numbering"
         right_paragraph._p.append(create_element("w:r", "("))
+        if caption_info and caption_info.unique_name:
+            right_paragraph._p.append(create_element("w:bookmarkStart", {
+                "w:id": uid,
+                "w:name": caption_info.unique_name
+            }))
         self._numbering_run = create_element("w:r", "?")
         right_paragraph._p.append(
             create_element("w:fldSimple", {
-                "w:instr": f"SEQ formula \\* ARABIC"
+                "w:instr": f"SEQ Формула \\* ARABIC"
             }, [self._numbering_run]))
+        if caption_info and caption_info.unique_name:
+            right_paragraph._p.append(create_element("w:bookmarkEnd", {
+                "w:id": uid
+            }))
         right_paragraph._p.append(create_element("w:r", ")"))
         right_cell.vertical_alignment = \
             WD_CELL_VERTICAL_ALIGNMENT.CENTER
