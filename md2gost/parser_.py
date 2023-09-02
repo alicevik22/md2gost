@@ -28,5 +28,5 @@ class Parser:
                 self._caption_info = CaptionInfo(marko_element.unique_name, marko_element.text)
                 continue
 
-            yield factory.create(marko_element, self._caption_info)
+            yield from factory.create(marko_element, self._caption_info)
             self._caption_info = None
