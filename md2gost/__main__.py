@@ -11,7 +11,7 @@ from .converter import Converter
 
 def main():
     parser = ArgumentParser(
-        prog="md2docx",
+        prog="md2gost",
         description="Этот скрипт предназначен для генерирования отчетов/\
                 курсовых работ по ГОСТ в формате docx из Markdown-файла."
     )
