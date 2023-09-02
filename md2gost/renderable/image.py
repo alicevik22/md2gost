@@ -20,7 +20,7 @@ from ..util import create_element
 
 class Image(Renderable, RequiresNumbering):
     def __init__(self, parent: Parented, path: str, caption_info: CaptionInfo | None = None):
-        super().__init__("Рисунок")
+        super().__init__("Рисунок", caption_info.unique_name if caption_info else None)
         self._parent = parent
         self._caption_info = caption_info
         self._docx_paragraph = Paragraph(create_element("w:p"), parent)

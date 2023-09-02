@@ -1,8 +1,9 @@
 from copy import copy
 from typing import Generator, Any
 
-from docx.shared import Length, Parented, RGBColor, Cm
 from docx.table import Table
+from docx.oxml import CT_R
+from docx.shared import Length, Parented, RGBColor, Cm
 from docx.text.paragraph import Paragraph as DocxParagraph
 from docx.text.paragraph import Run as DocxRun
 from docx.enum.text import WD_LINE_SPACING
@@ -49,11 +50,28 @@ class Link:
         return self._hyperlink
 
 
+class Reference:
+    def __init__(self, unique_name: str):
+        self._unique_name = unique_name
+        self._element = create_field("?", f"REF {unique_name} \\h")
+
+    @property
+    def unique_name(self) -> str:
+        return self._unique_name
+
+    def set_number(self, number: int):
+        self._element.xpath("w:t")[0].text = str(number)
+
+    def element(self) -> CT_R:
+        return self._element
+
+
 class Paragraph(Renderable):
     def __init__(self, parent: Parented):
         self._parent = parent
         self._docx_paragraph = DocxParagraph(create_element("w:p"), parent)
         self._docx_paragraph.style = "Normal"
+        self._references: list[Reference] = []
 
     def add_run(self, text: str, is_bold: bool = None, is_italic: bool = None, color: RGBColor = None,
                 strike_through: bool = None):
@@ -69,8 +87,13 @@ class Paragraph(Renderable):
                 self._docx_paragraph.add_run()._element.\
                     append(create_element("w:noBreakHyphen"))
 
+    @property
+    def references(self) -> list[Reference]:
+        return self._references
+
     def add_reference(self, unique_name: str):
-        self._docx_paragraph._p.append(create_field("?", f"REF {unique_name} \\h"))
+        self._references.append(Reference(unique_name))
+        self._docx_paragraph._p.append(self._references[-1].element())
 
     def add_link(self, url: str):
         link = Link(url, self._docx_paragraph)

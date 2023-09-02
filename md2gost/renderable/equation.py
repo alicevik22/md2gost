@@ -20,7 +20,7 @@ _HEIGHT = Pt(50)
 
 class Equation(Renderable, RequiresNumbering):
     def __init__(self, parent, latex_formula: str, caption_info: CaptionInfo):
-        super().__init__("Формула")
+        super().__init__("Формула", caption_info.unique_name if caption_info else None)
         word_math = latex_to_omml(latex_formula)
 
         sect = parent.part.document.sections[0]

@@ -1,16 +1,25 @@
+import logging
 from collections import defaultdict
 
-from md2gost.renderable import Renderable
+from md2gost.renderable import Renderable, Paragraph
 from md2gost.renderable.requires_numbering import RequiresNumbering
 
 
 class NumberingPreProcessor:
     def __init__(self):
-        self.categories: dict[str, list[str]] = defaultdict(lambda: [])
+        self._categories: dict[str, int] = defaultdict(lambda: 0)
+        self._reference_data: dict[str, int] = dict()
 
     def process(self, renderables: list[Renderable]):
-        requires_numberings = filter(lambda x: isinstance(x, RequiresNumbering), renderables)
+        for requires_numbering in filter(lambda x: isinstance(x, RequiresNumbering), renderables):
+            requires_numbering.set_number(self._categories[requires_numbering.numbering_category] + 1)
+            self._categories[requires_numbering.numbering_category] += 1
+            self._reference_data[requires_numbering.numbering_unique_name] =\
+                self._categories[requires_numbering.numbering_category]
 
-        for requires_numberings in requires_numberings:
-            requires_numberings.set_number(len(self.categories[requires_numberings.numbering_category]) + 1)
-            self.categories[requires_numberings.numbering_category].append("unique name")
+        for paragraph in filter(lambda x: isinstance(x, Paragraph), renderables):
+            for reference in paragraph.references:
+                if reference.unique_name in self._reference_data:
+                    reference.set_number(self._reference_data[reference.unique_name])
+                else:
+                    logging.warn(f"Invalid reference: {reference.unique_name}")

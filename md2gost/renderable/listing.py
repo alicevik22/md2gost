@@ -50,7 +50,7 @@ LISTING_OFFSET = Pt(31) - Twips(108 * 2)  # todo: fix
 
 class Listing(Renderable, RequiresNumbering):
     def __init__(self, parent, language: str, caption_info: CaptionInfo):
-        super().__init__("Листинг")
+        super().__init__("Листинг", caption_info.unique_name if caption_info else None)
         self._caption_info = caption_info
         self._language = language
         self._parent = parent

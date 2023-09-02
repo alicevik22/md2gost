@@ -54,8 +54,10 @@ def create_field(text: str, instr_text: str) -> CT_R:
     r.append(create_element("w:fldChar", {
         "w:fldCharType": "separate"
     }))
+    t = create_element("w:t")
+    r.append(t)
     if text is not None:
-        r.append(create_element("w:t", text))
+        t.text = text
     r.append(create_element("w:fldChar", {
         "w:fldCharType": "end"
     }))

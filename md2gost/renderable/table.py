@@ -16,7 +16,7 @@ CELL_OFFSET = Pt(9) - Twips(108*2)
 
 class Table(Renderable, RequiresNumbering):
     def __init__(self, parent: Parented, rows: int, cols: int, caption_info: CaptionInfo):
-        super().__init__("Таблица")
+        super().__init__("Таблица", caption_info.unique_name if caption_info else None)
         self._parent = parent
         self._caption_info = caption_info
         self._cols = cols
