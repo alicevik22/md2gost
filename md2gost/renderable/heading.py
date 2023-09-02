@@ -66,7 +66,7 @@ class Heading(Paragraph):
             -> Generator[RenderedInfo | SubRenderable, None, None]:
         remaining_height = layout_state.remaining_page_height
 
-        if self._level == 1 and layout_state.page != 1 and\
+        if self._level == 1 and not (layout_state.page == 1 and layout_state.current_page_height == 0) and\
                 not (isinstance(previous_rendered.docx_element, DocxParagraph)
                      and previous_rendered.docx_element.text == "\n"):
             self.page_break_before = True
