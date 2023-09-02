@@ -83,7 +83,7 @@ class Table(Renderable, RequiresNumbering):
                 table_height = Pt(0.5)  # top border
 
                 continuation_paragraph = Paragraph(self._parent)
-                continuation_paragraph.add_run("Продолжение таблицы")
+                continuation_paragraph.add_run(f"Продолжение таблицы {self._number}")
                 continuation_paragraph.style = "Caption"
                 continuation_paragraph.first_line_indent = 0
                 continuation_paragraph.page_break_before = True
