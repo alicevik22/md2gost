@@ -67,9 +67,12 @@ class ToC(Renderable):
         if numbered:
             paragraph.add_run(".".join([str(x) for x in self._numbering[:level]]) + ". ")
         paragraph.add_run(title)
-        paragraph.add_run(f"\t?")
+        paragraph.add_run(f"\t")
 
         self._paragraphs.append(paragraph)
+
+    def set_page(self, index: int, page: int):
+        self._paragraphs[index].add_run(str(page))
 
     def render(self, previous_rendered: RenderedInfo, layout_state: LayoutState) \
             -> Generator[RenderedInfo | SubRenderable, None, None]:
