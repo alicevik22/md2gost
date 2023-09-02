@@ -1,6 +1,6 @@
 from copy import deepcopy
 
-from docx.oxml import CT_Tbl
+from docx.oxml import CT_Tbl, CT_R
 from docx.shared import Parented, Length
 from docx.table import Table, _Row, _Cell
 
@@ -40,3 +40,24 @@ def create_table_cell(parent: _Row, width: Length):
     cell = _Cell(create_element("w:tc"), parent)
     cell.width = width
     return cell
+
+
+def create_field(text: str, instr_text: str) -> CT_R:
+    r = create_element("w:r")
+
+    r.append(create_element("w:fldChar", {
+        "w:fldCharType": "begin"
+    }))
+    r.append(create_element("w:instrText", {
+        "xml:space": "preserve"
+    }, instr_text))
+    r.append(create_element("w:fldChar", {
+        "w:fldCharType": "separate"
+    }))
+    if text is not None:
+        r.append(create_element("w:t", text))
+    r.append(create_element("w:fldChar", {
+        "w:fldCharType": "end"
+    }))
+
+    return r
