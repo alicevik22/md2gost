@@ -2,6 +2,7 @@ import docx
 from docx.document import Document
 
 from .debugger import Debugger
+from .numberer import NumberingPreProcessor
 from .parser_ import Parser
 from .toc_processor import TocProcessor
 from .renderer import Renderer
@@ -23,6 +24,7 @@ class Converter:
         renderables = list(self.parser.parse())
 
         processors = [
+            NumberingPreProcessor(),
             Renderer(self._document, self._debugger),
             TocProcessor()
         ]

@@ -15,7 +15,6 @@ from .renderable import Renderable
 from .requires_numbering import RequiresNumbering
 from ..layout_tracker import LayoutState
 from ..rendered_info import RenderedInfo
-from ..sub_renderable import SubRenderable
 from ..util import create_element
 
 
@@ -50,34 +49,48 @@ class Image(Renderable, RequiresNumbering):
     def set_number(self, number: int):
         self._number = number
 
+    def resize(self, width: Length = None, height: Length = None):
+        if not any((width, height)):
+            return
+
+        if not width:
+            width = height * (self._image.width / self._image.height)
+
+        if not height:
+            height = width * (self._image.height / self._image.width)
+
+        self._image.width = Length(width)
+        self._image.height = Length(height)
+
     def render(self, previous_rendered: RenderedInfo, layout_state: LayoutState)\
-            -> Generator[RenderedInfo | SubRenderable, None, None]:
+            -> Generator[RenderedInfo | Renderable, None, None]:
         if self._invalid:
             yield from []
             return
 
         # limit width
         if self._image.width > layout_state.max_width:
-            height_by_width = self._image.height / self._image.width
-            self._image.width = layout_state.max_width
-            self._image.height = Length(self._image.width * height_by_width)
+            self.resize(width=layout_state.max_width)
 
         # limit height
         if self._image.height > layout_state.max_height:
-            width_by_height = self._image.width / self._image.height
-            self._image.height = layout_state.max_height
-            self._image.width = Length(self._image.height * width_by_height)
+            self.resize(height=layout_state.max_height)
 
         height = self._image.height
-
-        if layout_state.remaining_page_height < height:
-            height += layout_state.remaining_page_height
-
-        yield (rendered_image := RenderedInfo(self._docx_paragraph, Length(height)))
-
-        layout_state.add_height(rendered_image.height)
 
         caption = Caption(self._parent, "Рисунок", self._caption_info, self._number, False)
         caption.center()
 
-        yield from caption.render(rendered_image, copy(layout_state))
+        caption_rendered_infos = list(caption.render(None, copy(layout_state)))
+        caption_height = sum([info.height for info in caption_rendered_infos])
+
+        if height + caption_height > layout_state.remaining_page_height:
+            if height * 0.7 <= (layout_state.remaining_page_height - caption_height):
+                self.resize(height=layout_state.remaining_page_height - caption_height)
+                height = layout_state.remaining_page_height - caption_height
+            else:
+                height += layout_state.remaining_page_height
+                self._docx_paragraph.paragraph_format.page_break_before = True
+
+        yield RenderedInfo(self._docx_paragraph, height)
+        yield from caption_rendered_infos
