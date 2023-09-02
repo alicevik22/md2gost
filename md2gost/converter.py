@@ -3,7 +3,7 @@ from docx.document import Document
 
 from .debugger import Debugger
 from .parser_ import Parser
-from .toc_processor import TocProcessor
+from .toc_processor import TocPreProcessor
 from .renderer import Renderer
 
 
@@ -23,8 +23,8 @@ class Converter:
         renderables = list(self.parser.parse())
 
         processors = [
+            TocPreProcessor(),
             Renderer(self._document, self._debugger),
-            TocProcessor()
         ]
 
         for processor in processors:

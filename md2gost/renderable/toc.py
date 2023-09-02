@@ -44,36 +44,38 @@ class ToC(Renderable):
 
     def __init__(self, parent: Parented):
         self._parent = parent
-        self._paragraph = Paragraph(parent)
-        self._paragraph._docx_paragraph.paragraph_format.alignment = WD_PARAGRAPH_ALIGNMENT.LEFT
-        self._paragraph.first_line_indent = 0
-        self._items: list[tuple[int, str, int, bool]] = []
+        self._paragraphs: list[Paragraph] = []
+        self._numbering = [0 for _ in range(10)]
         pass
 
-    def add_item(self, level: int, title: str, page: int, numbered: bool):
-        self._items.append((level, title, page, numbered))
-
-    def fill(self):
-        p = self._paragraph._docx_paragraph
-        p.paragraph_format.tab_stops.add_tab_stop(
-            p.part.document.sections[0].page_width - p.part.document.sections[0].left_margin - p.part.document.sections[0].right_margin,
+    def add_item(self, level: int, title: str, numbered: bool):
+        """Adds items to TOC. Must be called before rendering"""
+        paragraph = Paragraph(self._parent)
+        paragraph._docx_paragraph.paragraph_format.tab_stops.add_tab_stop(
+            paragraph._docx_paragraph.part.document.sections[0].page_width - paragraph._docx_paragraph.part.document.sections[0].left_margin
+            - paragraph._docx_paragraph.part.document.sections[0].right_margin,
             alignment=WD_TAB_ALIGNMENT.RIGHT, leader=WD_TAB_LEADER.DOTS)
-        p.paragraph_format.tab_stops.add_tab_stop(0, alignment=WD_TAB_ALIGNMENT.LEFT, leader=WD_TAB_LEADER.SPACES)
+        paragraph._docx_paragraph.paragraph_format.tab_stops.add_tab_stop(0, alignment=WD_TAB_ALIGNMENT.LEFT,
+                                                          leader=WD_TAB_LEADER.SPACES)
+        paragraph._docx_paragraph.paragraph_format.alignment = WD_PARAGRAPH_ALIGNMENT.LEFT
+        paragraph.first_line_indent = 0
 
-        numbering = [0 for _ in range(10)]
-        for level, title, page, numbered in self._items:
-            numbering[level-1] += 1
-            for i in range(level, len(numbering)):
-                numbering[i] = 0
-            p.add_run("    "*(level-1))
-            if numbered:
-                p.add_run(".".join([str(x) for x in numbering[:level]])+". ")
-            p.add_run(title)
-            p.add_run(f"\t{page}")
-            p.add_run("\n")
+        self._numbering[level - 1] += 1
+        for i in range(level, len(self._numbering)):
+            self._numbering[i] = 0
+        paragraph.add_run("    " * (level - 1))
+        if numbered:
+            paragraph.add_run(".".join([str(x) for x in self._numbering[:level]]) + ". ")
+        paragraph.add_run(title)
+        paragraph.add_run(f"\t?")
 
-    def render(self, previous_rendered: RenderedInfo, layout_state: LayoutState)\
+        self._paragraphs.append(paragraph)
+
+    def render(self, previous_rendered: RenderedInfo, layout_state: LayoutState) \
             -> Generator[RenderedInfo | SubRenderable, None, None]:
-        for rendered_info in self._paragraph.render(previous_rendered, copy(layout_state)):
-            yield RenderedInfo(rendered_info.docx_element, 0)
-        yield from PageBreak(self._parent).render(None, copy(layout_state))
+        for paragraph in self._paragraphs:
+            paragraph_rendered_infos = list(
+                paragraph.render(previous_rendered, copy(layout_state)))
+            layout_state.add_height(sum([info.height for info in paragraph_rendered_infos]))
+            yield from paragraph_rendered_infos
+            previous_rendered = paragraph_rendered_infos[-1]
