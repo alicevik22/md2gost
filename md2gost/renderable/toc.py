@@ -2,7 +2,7 @@ from copy import copy
 from typing import Generator
 
 from docx.enum.text import WD_TAB_LEADER, WD_TAB_ALIGNMENT, WD_PARAGRAPH_ALIGNMENT
-from docx.shared import Parented, Pt
+from docx.shared import Parented, Pt, Cm
 from docx.text.run import Run
 
 from . import Paragraph
@@ -51,15 +51,16 @@ class ToC(Renderable):
         """Adds items to TOC. Must be called before rendering"""
         paragraph = Paragraph(self._parent)
         paragraph._docx_paragraph.paragraph_format.tab_stops.add_tab_stop(
-            paragraph._docx_paragraph.part.document.sections[0].page_width - paragraph._docx_paragraph.part.document.sections[0].left_margin
-            - paragraph._docx_paragraph.part.document.sections[0].right_margin,
+            paragraph._docx_paragraph.part.document.sections[-1].page_width - paragraph._docx_paragraph.part.document.sections[-1].left_margin
+            - paragraph._docx_paragraph.part.document.sections[-1].right_margin,
             alignment=WD_TAB_ALIGNMENT.RIGHT, leader=WD_TAB_LEADER.DOTS)
         paragraph._docx_paragraph.paragraph_format.tab_stops.add_tab_stop(0, alignment=WD_TAB_ALIGNMENT.LEFT,
                                                           leader=WD_TAB_LEADER.SPACES)
         paragraph._docx_paragraph.paragraph_format.alignment = WD_PARAGRAPH_ALIGNMENT.LEFT
+        paragraph._docx_paragraph.paragraph_format.space_after = Cm(0.18)
         paragraph.first_line_indent = 0
 
-        hyperlink = paragraph.add_link_anchor(anchor, None      )
+        hyperlink = paragraph.add_link_anchor(anchor, None)
 
         self._numbering[level - 1] += 1
         for i in range(level, len(self._numbering)):

@@ -21,7 +21,7 @@ class Table(Renderable, RequiresNumbering):
         self._caption_info = caption_info
         self._cols = cols
 
-        sect = parent.part.document.sections[0]
+        sect = parent.part.document.sections[-1]
 
         # todo: style inheritance
         left_margin = Twips(int(parent.part.styles["Normal Table"]._element.xpath("w:tblPr/w:tblCellMar/w:left")[0].attrib["{http://schemas.openxmlformats.org/wordprocessingml/2006/main}w"]))
