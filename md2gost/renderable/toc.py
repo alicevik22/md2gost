@@ -10,7 +10,6 @@ from .page_break import PageBreak
 from .renderable import Renderable
 from ..layout_tracker import LayoutState
 from ..rendered_info import RenderedInfo
-from ..sub_renderable import SubRenderable
 from ..util import create_element
 
 
@@ -76,8 +75,8 @@ class ToC(Renderable):
     def set_page(self, index: int, page: int):
         self._paragraphs[index].add_run(str(page))
 
-    def render(self, previous_rendered: RenderedInfo, layout_state: LayoutState) \
-            -> Generator[RenderedInfo | SubRenderable, None, None]:
+    def render(self, previous_rendered: RenderedInfo, layout_state: LayoutState)\
+            -> Generator[RenderedInfo | Renderable, None, None]:
         for paragraph in self._paragraphs:
             paragraph_rendered_infos = list(
                 paragraph.render(previous_rendered, copy(layout_state)))

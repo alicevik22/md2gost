@@ -10,14 +10,13 @@ from .requires_numbering import RequiresNumbering
 from ..docx_elements import *
 from ..layout_tracker import LayoutState
 from ..rendered_info import RenderedInfo
-from ..sub_renderable import SubRenderable
 
 CELL_OFFSET = Pt(9) - Twips(108*2)
 
 
 class Table(Renderable, RequiresNumbering):
     def __init__(self, parent: Parented, rows: int, cols: int, caption_info: CaptionInfo):
-        super().__init__("Таблица")
+        super().__init__("Таблица", caption_info.unique_name if caption_info else None)
         self._parent = parent
         self._caption_info = caption_info
         self._cols = cols
@@ -46,7 +45,7 @@ class Table(Renderable, RequiresNumbering):
         self._number = number
 
     def render(self, previous_rendered: RenderedInfo, layout_state: LayoutState)\
-            -> Generator[RenderedInfo | SubRenderable, None, None]:
+            -> Generator[RenderedInfo | Renderable, None, None]:
         caption_rendered_infos = list(
             Caption(self._parent, "Таблица", self._caption_info, self._number, True)
             .render(previous_rendered, copy(layout_state))
@@ -84,7 +83,7 @@ class Table(Renderable, RequiresNumbering):
                 table_height = Pt(0.5)  # top border
 
                 continuation_paragraph = Paragraph(self._parent)
-                continuation_paragraph.add_run("Продолжение таблицы")
+                continuation_paragraph.add_run(f"Продолжение таблицы {self._number}")
                 continuation_paragraph.style = "Caption"
                 continuation_paragraph.first_line_indent = 0
                 continuation_paragraph.page_break_before = True

@@ -7,8 +7,7 @@ class Reference(InlineElement):
 
     Syntax: @Type:label"""
 
-    pattern = r"\@([^ ]+):([^ ]+)"
+    pattern = r"\@(\w+)"
 
     def __init__(self, match: Match[str]):
-        self.type = match.group(1)
-        self.name = match.group(2)
+        self.unique_name = match.group(1)

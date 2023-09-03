@@ -1,5 +1,6 @@
 import logging
 from functools import singledispatchmethod
+from typing import Generator
 
 from docx.shared import Parented, RGBColor
 
@@ -7,6 +8,7 @@ from .renderable import *
 from .renderable import Renderable
 from . import extended_markdown
 from .renderable.caption import CaptionInfo
+from .renderable.image import Image
 from .renderable.paragraph import Link
 from .renderable.table import Table
 from .renderable.equation import Equation
@@ -21,11 +23,11 @@ class RenderableFactory:
 
     @singledispatchmethod
     def create(self, marko_element: extended_markdown.BlockElement,
-               caption_info: CaptionInfo) -> Renderable:
+               caption_info: CaptionInfo) -> Generator[Renderable, None, None]:
         paragraph = Paragraph(self._parent)
         paragraph.add_run(f"{marko_element.get_type()} is not supported", color=RGBColor.from_string('ff0000'))
         logging.warning(f"{marko_element.get_type()} is not supported")
-        return paragraph
+        yield paragraph
 
     @staticmethod
     def _create_runs(paragraph_or_link: Paragraph | Link, children, classes: list[type] = None):
@@ -39,10 +41,10 @@ class RenderableFactory:
                                           strike_through=extended_markdown.Strikethrough in classes or None)
             elif isinstance(child, extended_markdown.CodeSpan):
                 paragraph_or_link.add_run(child.children, is_italic=True)
-            elif isinstance(child, extended_markdown.Image):
-                paragraph_or_link.add_image(child.dest, CaptionInfo(None, child.title))
-            elif isinstance(child, extended_markdown.LineBreak):
+            elif isinstance(child, (extended_markdown.LineBreak, extended_markdown.Image)):
                 pass  # ignore
+            elif isinstance(child, extended_markdown.Reference):
+                paragraph_or_link.add_reference(child.unique_name)
             elif isinstance(child, extended_markdown.InlineEquation):
                 paragraph_or_link.add_inline_equation(child.latex_equation)
             elif isinstance(child, (extended_markdown.Link, extended_markdown.Url)):
@@ -60,25 +62,36 @@ class RenderableFactory:
     @create.register
     def _(self, marko_paragraph: extended_markdown.Paragraph, caption_info: CaptionInfo):
         paragraph = Paragraph(self._parent)
+
+        all_images = True
+        for child in marko_paragraph.children:
+            if isinstance(child, extended_markdown.Image):
+                yield Image(self._parent, child.dest, CaptionInfo(child.unique_name, child.title))
+            else:
+                all_images = False
+
+        if all_images:
+            return
+
         RenderableFactory._create_runs(paragraph, marko_paragraph.children)
-        return paragraph
+        yield paragraph
 
     @create.register
     def _(self, marko_heading: extended_markdown.Heading, caption_info: CaptionInfo):
         heading = Heading(self._parent, marko_heading.level, marko_heading.numbered)
         RenderableFactory._create_runs(heading, marko_heading.children)
-        return heading
+        yield heading
 
     @create.register
     def _(self, marko_code_block: extended_markdown.FencedCode | extended_markdown.CodeBlock, caption_info: CaptionInfo):
         listing = Listing(self._parent, marko_code_block.lang, caption_info)
         listing.set_text(marko_code_block.children[0].children)
-        return listing
+        yield listing
 
     @create.register
     def _(self, marko_equation: extended_markdown.Equation, caption_info: CaptionInfo):
-        formula = Equation(self._parent, marko_equation.latex_equation)
-        return formula
+        equation = Equation(self._parent, marko_equation.latex_equation, caption_info)
+        yield equation
 
     @create.register
     def _(self, marko_list: extended_markdown.List, caption_info: CaptionInfo):
@@ -97,7 +110,7 @@ class RenderableFactory:
 
         create_items_from_marko(marko_list)
 
-        return list_
+        yield list_
 
     @create.register
     def _(self, marko_table: extended_markdown.Table, caption_info: CaptionInfo):
@@ -111,9 +124,9 @@ class RenderableFactory:
                     cell.children
                 )
 
-        return table
+        yield table
 
     @create.register
     def _(self, marko_toc: extended_markdown.TOC, caption_info: CaptionInfo):
         toc = ToC(self._parent)
-        return toc
+        yield toc

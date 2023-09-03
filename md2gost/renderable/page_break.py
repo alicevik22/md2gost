@@ -6,7 +6,6 @@ from docx.text.paragraph import Paragraph as DocxParagraph
 from .paragraph_sizer import ParagraphSizer
 from ..layout_tracker import LayoutState
 from ..rendered_info import RenderedInfo
-from ..sub_renderable import SubRenderable
 from ..util import create_element
 from .renderable import Renderable
 
@@ -23,7 +22,7 @@ class PageBreak(Renderable):
         self._docx_paragraph.paragraph_format.space_after = 0
 
     def render(self, previous_rendered: RenderedInfo, layout_state: LayoutState)\
-            -> Generator[RenderedInfo | SubRenderable, None, None]:
+            -> Generator[RenderedInfo | Renderable, None, None]:
         yield RenderedInfo(
             self._docx_paragraph,
             max(layout_state.remaining_page_height, ParagraphSizer(self._docx_paragraph, None, layout_state.max_width).calculate_height().line_height)
