@@ -8,6 +8,7 @@ from docx.text.paragraph import Paragraph as DocxParagraph
 from docx.text.paragraph import Run as DocxRun
 from docx.enum.text import WD_LINE_SPACING
 from docx.opc.constants import RELATIONSHIP_TYPE
+from docx.oxml.shared import qn
 
 from . import Renderable
 from .caption import CaptionInfo
@@ -21,13 +22,18 @@ from ..latex_math import latex_to_omml, inline_omml
 
 
 class Link:
-    def __init__(self, url, docx_paragraph: DocxParagraph):
+    def __init__(self, docx_paragraph: DocxParagraph, style: str | None):
         self._docx_paragraph = docx_paragraph
-        r_id = docx_paragraph.part.relate_to(url, RELATIONSHIP_TYPE.HYPERLINK, is_external=True)
+        self._style = style
 
-        self._hyperlink = create_element("w:hyperlink", {
-            "r:id": r_id
-        })
+        self._hyperlink = create_element("w:hyperlink")
+
+    def set_url(self, url: str):
+        r_id = self._docx_paragraph.part.relate_to(url, RELATIONSHIP_TYPE.HYPERLINK, is_external=True)
+        self._hyperlink.set(qn("r:id"), r_id)
+
+    def set_anchor(self, anchor: str):
+        self._hyperlink.set(qn("w:anchor"), anchor)
 
     def add_run(self, text: str, is_bold: bool = None, is_italic: bool = None, color: RGBColor = None,
                     strike_through: bool = None):
@@ -37,7 +43,7 @@ class Link:
             docx_run = DocxRun(create_element("w:r"), self._docx_paragraph)
             self._hyperlink.append(docx_run._element)
             docx_run.text = text
-            docx_run.style = "Hyperlink"
+            docx_run.style = self._style
             docx_run.bold = is_bold
             docx_run.italic = is_italic
             docx_run.font.color.rgb = color
@@ -95,8 +101,15 @@ class Paragraph(Renderable):
         self._references.append(Reference(unique_name))
         self._docx_paragraph._p.append(self._references[-1].element())
 
-    def add_link(self, url: str):
-        link = Link(url, self._docx_paragraph)
+    def add_link_url(self, url: str, style="Hyperlink"):
+        link = Link(self._docx_paragraph, style)
+        link.set_url(url)
+        self._docx_paragraph._p.append(link.element)
+        return link
+
+    def add_link_anchor(self, anchor: str, style="Hyperlink"):
+        link = Link(self._docx_paragraph, style)
+        link.set_anchor(anchor)
         self._docx_paragraph._p.append(link.element)
         return link
 

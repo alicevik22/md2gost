@@ -48,7 +48,7 @@ class RenderableFactory:
             elif isinstance(child, extended_markdown.InlineEquation):
                 paragraph_or_link.add_inline_equation(child.latex_equation)
             elif isinstance(child, (extended_markdown.Link, extended_markdown.Url)):
-                RenderableFactory._create_runs(paragraph_or_link.add_link(child.dest),
+                RenderableFactory._create_runs(paragraph_or_link.add_link_url(child.dest),
                                                child.children, classes)
             elif isinstance(child, (extended_markdown.Emphasis, extended_markdown.StrongEmphasis,
                                     extended_markdown.Strikethrough)):

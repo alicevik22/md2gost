@@ -3,7 +3,7 @@ from md2gost.renderable.heading import Heading
 from md2gost.renderable.toc import ToC
 
 
-class TocProcessor:
+class TocPreProcessor:
     def process(self, renderables: list[Renderable]):
         renderables_iter = iter(renderables)
 
@@ -16,6 +16,23 @@ class TocProcessor:
         if toc:
             for renderable in renderables_iter:
                 if isinstance(renderable, Heading):
-                    toc.add_item(renderable.level, renderable.text, renderable.rendered_page, renderable.is_numbered)
+                    toc.add_item(renderable.level, renderable.text, renderable.is_numbered,
+                                 renderable.anchor)
 
-            toc.fill()
+
+class TocPostProcessor:
+    def process(self, renderables: list[Renderable]):
+        renderables_iter = iter(renderables)
+
+        toc = None
+        for renderable in renderables_iter:
+            if isinstance(renderable, ToC):
+                toc = renderable
+                break
+
+        if toc:
+            i = 0
+            for renderable in renderables_iter:
+                if isinstance(renderable, Heading):
+                    toc.set_page(i, renderable.rendered_page)
+                    i += 1
