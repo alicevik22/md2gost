@@ -16,7 +16,8 @@ class TocPreProcessor:
         if toc:
             for renderable in renderables_iter:
                 if isinstance(renderable, Heading):
-                    toc.add_item(renderable.level, renderable.text, renderable.is_numbered)
+                    toc.add_item(renderable.level, renderable.text, renderable.is_numbered,
+                                 renderable.anchor)
 
 
 class TocPostProcessor:

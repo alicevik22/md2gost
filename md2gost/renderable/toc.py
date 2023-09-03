@@ -48,7 +48,7 @@ class ToC(Renderable):
         self._numbering = [0 for _ in range(10)]
         pass
 
-    def add_item(self, level: int, title: str, numbered: bool):
+    def add_item(self, level: int, title: str, numbered: bool, anchor: str):
         """Adds items to TOC. Must be called before rendering"""
         paragraph = Paragraph(self._parent)
         paragraph._docx_paragraph.paragraph_format.tab_stops.add_tab_stop(
@@ -60,14 +60,16 @@ class ToC(Renderable):
         paragraph._docx_paragraph.paragraph_format.alignment = WD_PARAGRAPH_ALIGNMENT.LEFT
         paragraph.first_line_indent = 0
 
+        hyperlink = paragraph.add_link_anchor(anchor, None      )
+
         self._numbering[level - 1] += 1
         for i in range(level, len(self._numbering)):
             self._numbering[i] = 0
-        paragraph.add_run("    " * (level - 1))
+        hyperlink.add_run("    " * (level - 1))
         if numbered:
-            paragraph.add_run(".".join([str(x) for x in self._numbering[:level]]) + ". ")
-        paragraph.add_run(title)
-        paragraph.add_run(f"\t")
+            hyperlink.add_run(".".join([str(x) for x in self._numbering[:level]]) + ". ")
+        hyperlink.add_run(title)
+        hyperlink.add_run(f"\t")
 
         self._paragraphs.append(paragraph)
 

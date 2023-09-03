@@ -1,5 +1,6 @@
 from copy import copy
 from typing import Generator
+from uuid import uuid4
 
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 from docx.text.paragraph import Paragraph as DocxParagraph
@@ -32,7 +33,20 @@ class Heading(Paragraph):
 
         self._rendered_page = 0
 
+        self._id = uuid4().hex
+
         # todo: add bookmark here
+        self._docx_paragraph._p.append(create_element("w:bookmarkStart", {
+            "w:id": self._id,
+            "w:name": self._id,
+        }))
+        self._docx_paragraph._p.append(create_element("w:bookmarkEnd", {
+            "w:id": self._id,
+        }))
+
+    @property
+    def anchor(self) -> str:
+        return self._id
 
     @property
     def is_numbered(self) -> bool:
