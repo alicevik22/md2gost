@@ -17,7 +17,6 @@ from .requires_numbering import RequiresNumbering
 from ..docx_elements import create_table
 from ..layout_tracker import LayoutState
 from ..rendered_info import RenderedInfo
-from ..sub_renderable import SubRenderable
 
 
 class DocxParagraphPygmentsFormatter(Formatter):
@@ -51,7 +50,7 @@ LISTING_OFFSET = Pt(31) - Twips(108 * 2)  # todo: fix
 
 class Listing(Renderable, RequiresNumbering):
     def __init__(self, parent, language: str, caption_info: CaptionInfo):
-        super().__init__("Листинг")
+        super().__init__("Листинг", caption_info.unique_name if caption_info else None)
         self._caption_info = caption_info
         self._language = language
         self._parent = parent
@@ -90,7 +89,7 @@ class Listing(Renderable, RequiresNumbering):
         self._number = number
 
     def render(self, previous_rendered: RenderedInfo, layout_state: LayoutState)\
-            -> Generator[RenderedInfo | SubRenderable, None, None]:
+            -> Generator[RenderedInfo | Renderable, None, None]:
         caption_rendered_infos = list(
             Caption(self._parent, "Листинг", self._caption_info, self._number, True)
             .render(previous_rendered, copy(layout_state))

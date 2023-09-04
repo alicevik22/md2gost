@@ -1,10 +1,12 @@
 from copy import copy
 from dataclasses import dataclass
 from typing import Generator
+from uuid import uuid4
 
 from docx.shared import Parented
 from docx.text.paragraph import Paragraph as DocxParagraph
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
+from docx.text.run import Run
 
 from md2gost.layout_tracker import LayoutState
 from md2gost.renderable import Renderable
@@ -27,9 +29,23 @@ class Caption(Renderable):
         self._before = before
         self._docx_paragraph = DocxParagraph(create_element("w:p"), parent)
 
+        uid = uuid4().hex
+
         self._docx_paragraph.style = "Caption"
         self._docx_paragraph.add_run(f"{category} ")
-        self._numbering_run = self._docx_paragraph.add_run(str(number) if number else "?")
+        if caption_info and caption_info.unique_name:
+            self._docx_paragraph._p.append(create_element("w:bookmarkStart", {
+                "w:id": uid,
+                "w:name": caption_info.unique_name
+            }))
+        self._numbering_run = create_element("w:r", str(number) if number else "?")
+        self._docx_paragraph._p.append(create_element("w:fldSimple", {
+                    "w:instr": f"SEQ {category} \\* ARABIC"
+                }, [self._numbering_run]))
+        if caption_info and caption_info.unique_name:
+            self._docx_paragraph._p.append(create_element("w:bookmarkEnd", {
+                "w:id": uid
+            }))
         if caption_info and caption_info.text:
             self._docx_paragraph.add_run(f" - {caption_info.text}")
 

@@ -1,15 +1,16 @@
 from copy import copy
 from typing import Generator
+from uuid import uuid4
 
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 from docx.text.paragraph import Paragraph as DocxParagraph
 from docx.shared import Parented, Length
 
+from . import Renderable
 from .paragraph_sizer import ParagraphSizer
 from ..layout_tracker import LayoutState
 from .paragraph import Paragraph
 from ..rendered_info import RenderedInfo
-from ..sub_renderable import SubRenderable
 from ..util import create_element
 
 
@@ -32,7 +33,20 @@ class Heading(Paragraph):
 
         self._rendered_page = 0
 
+        self._id = uuid4().hex
+
         # todo: add bookmark here
+        self._docx_paragraph._p.append(create_element("w:bookmarkStart", {
+            "w:id": self._id,
+            "w:name": self._id,
+        }))
+        self._docx_paragraph._p.append(create_element("w:bookmarkEnd", {
+            "w:id": self._id,
+        }))
+
+    @property
+    def anchor(self) -> str:
+        return self._id
 
     @property
     def is_numbered(self) -> bool:
@@ -63,10 +77,10 @@ class Heading(Paragraph):
         )
 
     def render(self, previous_rendered: RenderedInfo, layout_state: LayoutState)\
-            -> Generator[RenderedInfo | SubRenderable, None, None]:
+            -> Generator[RenderedInfo | Renderable, None, None]:
         remaining_height = layout_state.remaining_page_height
 
-        if self._level == 1 and layout_state.page != 1 and\
+        if self._level == 1 and not (layout_state.page == 1 and layout_state.current_page_height == 0) and\
                 not (isinstance(previous_rendered.docx_element, DocxParagraph)
                      and previous_rendered.docx_element.text == "\n"):
             self.page_break_before = True
