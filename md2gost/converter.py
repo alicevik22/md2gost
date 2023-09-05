@@ -1,8 +1,9 @@
 from copy import copy
+from io import BytesIO
 
 import docx
 from docx.document import Document
-from docx.oxml import CT_P, CT_Tbl, CT_SectPr
+from docx.oxml import CT_P, CT_Tbl, CT_Blip
 from docx.oxml.ns import qn
 from docx.shared import Cm
 from docx.styles.style import _ParagraphStyle
@@ -66,6 +67,11 @@ class Converter:
                         p.paragraph_format.__setattr__(attr, value if value is not None else 0)
                     except AttributeError:
                         pass
+            elif isinstance(element, CT_Blip):
+                r_id = element.attrib[qn("r:embed")]
+                image_blob = BytesIO(self._title_document.part.related_parts[r_id].image.blob)
+                r_id, _ = self._document.part.get_or_add_image(image_blob)
+                element.set(qn("r:embed"), r_id)
 
         # copy elements from title to document
         self._document.sections[0].page_width = self._title_document.sections[0].page_width
