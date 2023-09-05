@@ -1,7 +1,7 @@
-from copy import copy, deepcopy
+from copy import copy
 from typing import Generator
 
-from docx.shared import Parented, Length, Pt, Twips
+from docx.shared import Parented, Pt, Twips
 
 from . import Paragraph
 from .caption import Caption, CaptionInfo
@@ -21,7 +21,7 @@ class Table(Renderable, RequiresNumbering):
         self._caption_info = caption_info
         self._cols = cols
 
-        sect = parent.part.document.sections[0]
+        sect = parent.part.document.sections[-1]
 
         # todo: style inheritance
         left_margin = Twips(int(parent.part.styles["Normal Table"]._element.xpath("w:tblPr/w:tblCellMar/w:left")[0].attrib["{http://schemas.openxmlformats.org/wordprocessingml/2006/main}w"]))

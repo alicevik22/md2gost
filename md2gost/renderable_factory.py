@@ -7,14 +7,6 @@ from docx.shared import Parented, RGBColor
 from .renderable import *
 from .renderable import Renderable
 from . import extended_markdown
-from .renderable.caption import CaptionInfo
-from .renderable.image import Image
-from .renderable.paragraph import Link
-from .renderable.table import Table
-from .renderable.equation import Equation
-from .renderable.heading import Heading
-from .renderable.list import List
-from .renderable.toc import ToC
 
 
 class RenderableFactory:

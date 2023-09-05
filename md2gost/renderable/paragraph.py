@@ -1,24 +1,19 @@
-from copy import copy
-from typing import Generator, Any
+from typing import Generator
 
 from docx.table import Table
 from docx.oxml import CT_R
 from docx.shared import Length, Parented, RGBColor, Cm
 from docx.text.paragraph import Paragraph as DocxParagraph
 from docx.text.paragraph import Run as DocxRun
-from docx.enum.text import WD_LINE_SPACING
 from docx.opc.constants import RELATIONSHIP_TYPE
 from docx.oxml.shared import qn
 
 from . import Renderable
-from .caption import CaptionInfo
-from .image import Image
 from .paragraph_sizer import ParagraphSizer
 from ..docx_elements import create_field
 from ..layout_tracker import LayoutState
 from ..util import create_element
 from ..rendered_info import RenderedInfo
-from ..latex_math import latex_to_omml, inline_omml
 
 
 class Link:

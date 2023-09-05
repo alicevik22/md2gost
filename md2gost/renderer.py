@@ -1,5 +1,4 @@
 from typing import TYPE_CHECKING
-from itertools import chain
 
 from docx.document import Document
 from docx.shared import Length, Cm, Parented, Pt
@@ -12,22 +11,17 @@ from .layout_tracker import LayoutTracker
 if TYPE_CHECKING:
     from .debugger import Debugger
 
-BOTTOM_MARGIN = Cm(1.86)
-
 
 class Renderer:
     """Renders Renderable elements to docx file"""
 
-    def __init__(self, document: Document, debugger: "Debugger | None" = None):
+    def __init__(self, document: Document, layout_tracker: LayoutTracker, debugger: "Debugger | None" = None):
         self._document: Document = document
         self._debugger = debugger
-        max_height = document.sections[0].page_height - document.sections[0].top_margin - BOTTOM_MARGIN# - ((136 / 2) * (Pt(1)*72/96))  # todo add bottom margin detection with footer
-        max_width = self._document.sections[0].page_width - self._document.sections[0].left_margin\
-            - self._document.sections[0].right_margin
-        self._layout_tracker = LayoutTracker(max_height, max_width)
+        self._layout_tracker = layout_tracker
 
         # add page numbering to the footer
-        paragraph = self._document.sections[0].footer.paragraphs[0]
+        paragraph = self._document.sections[-1].footer.paragraphs[0]
         paragraph.paragraph_format.first_line_indent = 0
         paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
         paragraph._p.append(create_element("w:fldSimple", {

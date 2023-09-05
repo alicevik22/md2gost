@@ -1,5 +1,3 @@
-import logging
-import os
 from dataclasses import dataclass
 from functools import cached_property
 from math import ceil
@@ -18,32 +16,7 @@ from docx.styles.style import _ParagraphStyle
 from PIL import Image, ImageDraw, ImageFont
 
 from .find_font import find_font
-
-
-def _merge_objects(*objects):
-    from inspect import getmembers, ismethod
-    """
-    Returns the new object containing attributes from objects, where the latest
-    one has the highest priority.
-    """
-
-    class MergedObject:
-        pass
-
-    merged_object = MergedObject()
-    for name, value in getmembers(objects[0]):
-        if name.startswith("_") or ismethod(value):
-            continue
-        merged_object.__setattr__(name, value)
-
-    for object_ in objects[1:]:
-        for name, value in getmembers(object_):
-            if name.startswith("_") or ismethod(value):
-                continue
-            if value is not None:
-                merged_object.__setattr__(name, value)
-
-    return merged_object
+from ..util import merge_objects
 
 
 class Font:
@@ -154,7 +127,7 @@ class ParagraphSizer:
                 word_part = ""
                 word_parts_widths.append(0)
 
-            run_docx_font = _merge_objects(
+            run_docx_font = merge_objects(
                 docx_font,
                 run.font
             )
@@ -198,11 +171,11 @@ class ParagraphSizer:
         max_width = self.max_width
 
 
-        docx_font: DocxFont = _merge_objects(
+        docx_font: DocxFont = merge_objects(
             *[style.font for style in self._styles[::-1] if style.font],
             self.paragraph.style.font)
 
-        paragraph_format: ParagraphFormat = _merge_objects(
+        paragraph_format: ParagraphFormat = merge_objects(
             *[style.paragraph_format for style in self._styles[::-1]
               if style.paragraph_format],
             self.paragraph.paragraph_format
@@ -231,7 +204,7 @@ class ParagraphSizer:
                     previous_paragraph_styles[-1].base_style
                 )
             previous_paragraph_styles.append(self._default_style)
-            previous_paragraph_format = _merge_objects(
+            previous_paragraph_format = merge_objects(
                 *[style.paragraph_format for style in previous_paragraph_styles[::-1]
                     if style.paragraph_format],
                 self.previous_paragraph.paragraph_format

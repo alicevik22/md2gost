@@ -7,16 +7,16 @@ from PIL.ImageDraw import ImageDraw
 from docx.document import Document
 from docx.shared import Parented, Length, Pt, Cm
 
-from docx.oxml import parse_xml, register_element_cls, CT_P
+from docx.oxml import parse_xml, register_element_cls
 from docx.oxml.ns import nsdecls
 from docx.oxml.shape import CT_Picture
 from docx.oxml.xmlchemy import BaseOxmlElement, OneAndOnlyOne
 from docx.text.paragraph import Paragraph
 
 from md2gost.util import create_element
-from .renderer import BOTTOM_MARGIN
 
 EMUS_PER_PX = Pt(1)
+BOTTOM_MARGIN = Cm(1.86)
 
 
 # refer to docx.oxml.shape.CT_Inline
@@ -151,11 +151,11 @@ class _Page:
     @classmethod
     def from_document(cls, document: Document, *args, **kwargs):
         return cls(
-            document.sections[0].page_width,
-            document.sections[0].page_height,
-            document.sections[0].left_margin,
-            document.sections[0].top_margin,
-            document.sections[0].right_margin,
+            document.sections[-1].page_width,
+            document.sections[-1].page_height,
+            document.sections[-1].left_margin,
+            document.sections[-1].top_margin,
+            document.sections[-1].right_margin,
             BOTTOM_MARGIN,  # todo: fix detection
             *args, **kwargs
         )
@@ -222,7 +222,7 @@ class Debugger:
             add_float_picture(
                 self._paragraphs_by_page[i],
                 self._pages[i].image,
-                # self._document.sections[0].page_width
+                # self._document.sections[-1].page_width
             )
 
     @property
