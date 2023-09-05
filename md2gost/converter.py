@@ -1,4 +1,3 @@
-from copy import copy
 from io import BytesIO
 
 import docx

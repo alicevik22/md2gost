@@ -2,11 +2,10 @@ from copy import copy
 from typing import Generator
 
 from docx.enum.text import WD_TAB_LEADER, WD_TAB_ALIGNMENT, WD_PARAGRAPH_ALIGNMENT
-from docx.shared import Parented, Pt, Cm
+from docx.shared import Parented, Cm
 from docx.text.run import Run
 
 from . import Paragraph
-from .page_break import PageBreak
 from .renderable import Renderable
 from ..layout_tracker import LayoutState
 from ..rendered_info import RenderedInfo

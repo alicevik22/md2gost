@@ -1,5 +1,4 @@
 from typing import TYPE_CHECKING
-from itertools import chain
 
 from docx.document import Document
 from docx.shared import Length, Cm, Parented, Pt

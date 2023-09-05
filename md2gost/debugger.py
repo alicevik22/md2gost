@@ -7,7 +7,7 @@ from PIL.ImageDraw import ImageDraw
 from docx.document import Document
 from docx.shared import Parented, Length, Pt, Cm
 
-from docx.oxml import parse_xml, register_element_cls, CT_P
+from docx.oxml import parse_xml, register_element_cls
 from docx.oxml.ns import nsdecls
 from docx.oxml.shape import CT_Picture
 from docx.oxml.xmlchemy import BaseOxmlElement, OneAndOnlyOne

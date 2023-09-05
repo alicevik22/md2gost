@@ -1,7 +1,7 @@
-from copy import copy, deepcopy
+from copy import copy
 from typing import Generator
 
-from docx.shared import Parented, Length, Pt, Twips
+from docx.shared import Parented, Pt, Twips
 
 from . import Paragraph
 from .caption import Caption, CaptionInfo
