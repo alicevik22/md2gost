@@ -24,9 +24,10 @@ class Converter:
     """Converts markdown file to docx file"""
 
     def __init__(self, input_path: str, output_path: str,
-                 template_path: str = None, title_path: str | None = None, debug: bool = False):
+                 template_path: str = None, title_path: str | None = None, title_pages: int = 1, debug: bool = False):
         self._output_path = output_path
         self._title_document: Document = docx.Document(title_path)
+        self._title_pages = title_pages
         self._document: Document = docx.Document(template_path)
         self._document._body.clear_content()
         self._debugger = Debugger(self._document) if debug else None
@@ -98,7 +99,7 @@ class Converter:
                 i += 1
 
         self._document.sections[-1].footer.is_linked_to_previous = False
-        self._document._body._element.xpath("w:sectPr/w:pgNumType")[0].set(qn("w:start"), "2")
+        self._document._body._element.xpath("w:sectPr/w:pgNumType")[0].set(qn("w:start"), str(self._title_pages+1))
 
     def convert(self):
         renderables = list(self.parser.parse())

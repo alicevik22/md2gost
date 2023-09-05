@@ -18,14 +18,16 @@ def main():
     parser.add_argument("-t", "--template", help="Путь до шаблона .docx")
     parser.add_argument("-T", "--title", help="Путь до файла титульной(-ых) \
                             страниц(ы) в формете docx")
+    parser.add_argument("--title-pages", help="Количество страниц в файле титульной(-ых) \
+                            страниц(ы) в формете docx", default=1, type=int)
     parser.add_argument("--syntax-highlighting", help="Подсветка синтаксиса в листингах",
                         action=BooleanOptionalAction)
     parser.add_argument("--debug", help="Добавляет отладочные данные в документ",
                         action="store_true")
 
     args = parser.parse_args()
-    filename, output, template, title, debug = \
-        args.filename, args.output, args.template, args.title, args.debug
+    filename, output, template, title, title_pages, debug = \
+        args.filename, args.output, args.template, args.title, args.title_pages, args.debug
     if args.syntax_highlighting:
         os.environ["SYNTAX_HIGHLIGHTING"] = "1"
 
@@ -45,7 +47,7 @@ def main():
     if not template:
         template = os.path.join(os.path.dirname(__file__), "Template.docx")
 
-    converter = Converter(filename, output, template, title, debug)
+    converter = Converter(filename, output, template, title, title_pages, debug)
     converter.convert()
 
     document = converter.document
