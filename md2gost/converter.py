@@ -57,7 +57,15 @@ class Converter:
                         pass
 
         # copy elements from title to document
-        self._document.add_section().is_linked_to_previous = True  # todo: copy footer
+        title_sect = self._document.add_section()
+        title_sect.page_width = self._title_document.sections[0].page_width
+        title_sect.page_height = self._title_document.sections[0].page_height
+        title_sect.left_margin = self._title_document.sections[0].left_margin
+        title_sect.top_margin = self._title_document.sections[0].top_margin
+        title_sect.right_margin = self._title_document.sections[0].right_margin
+        title_sect.bottom_margin = self._title_document.sections[0].bottom_margin
+
+        title_sect.is_linked_to_previous = True  # todo: copy footer
         i = 0
         for element in self._title_document._body._element.getchildren():
             if isinstance(element, (CT_P,  CT_Tbl)):
