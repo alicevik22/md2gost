@@ -5,6 +5,7 @@ from docx.document import Document
 from docx.oxml import CT_P, CT_Tbl, CT_SectPr
 from docx.oxml.ns import qn
 from docx.shared import Cm
+from docx.styles.style import _ParagraphStyle
 from docx.text.paragraph import Paragraph
 
 from .debugger import Debugger
@@ -43,12 +44,22 @@ class Converter:
 
     def append_title(self):
         # copy element styles to element
+        default_style_element = type("DefaultStyle", (), {})
+        default_style_element.rPr = \
+            self._document.styles.element.xpath(
+                'w:docDefaults/w:rPrDefault/w:rPr')[0]
+        default_style_element.pPr = \
+            self._document.part.document.styles.element.xpath(
+                'w:docDefaults/w:pPrDefault/w:pPr')[0]
+        default_style = _ParagraphStyle(default_style_element)
+
         for element in self._title_document._body._element.iter():
             if isinstance(element, CT_P):
                 p = Paragraph(element, self._title_document._body)
                 styles = [p.style]
                 while styles[-1].base_style:
                     styles.append(styles[-1].base_style)
+                styles.append(default_style)
                 pf = merge_objects(*[style.paragraph_format for style in styles][::-1], p.paragraph_format)
                 for attr, value in pf.__dict__.items():
                     try:
