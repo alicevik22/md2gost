@@ -74,6 +74,15 @@ class Converter:
                 element.set(qn("r:embed"), r_id)
 
         # copy elements from title to document
+        self._document.add_section().is_linked_to_previous = True  # todo: copy footer
+
+        self._document.sections[1].page_width = self._document.sections[0].page_width
+        self._document.sections[1].page_height = self._document.sections[0].page_height
+        self._document.sections[1].left_margin = self._document.sections[0].left_margin
+        self._document.sections[1].top_margin = self._document.sections[0].top_margin
+        self._document.sections[1].right_margin = self._document.sections[0].right_margin
+        self._document.sections[1].bottom_margin = self._document.sections[0].bottom_margin
+
         self._document.sections[0].page_width = self._title_document.sections[0].page_width
         self._document.sections[0].page_height = self._title_document.sections[0].page_height
         self._document.sections[0].left_margin = self._title_document.sections[0].left_margin
@@ -81,7 +90,6 @@ class Converter:
         self._document.sections[0].right_margin = self._title_document.sections[0].right_margin
         self._document.sections[0].bottom_margin = self._title_document.sections[0].bottom_margin
 
-        self._document.add_section().is_linked_to_previous = True  # todo: copy footer
 
         i = 0
         for element in self._title_document._body._element.getchildren():
