@@ -3,6 +3,7 @@ from functools import singledispatchmethod
 from typing import Generator
 
 from docx.shared import Parented, RGBColor
+from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 
 from .renderable import *
 from .renderable import Renderable
@@ -108,11 +109,17 @@ class RenderableFactory:
     def _(self, marko_table: extended_markdown.Table, caption_info: CaptionInfo):
         table = Table(self._parent, len(marko_table.children), len(marko_table.children[0].children),
                       caption_info)
-
         for i, row in enumerate(marko_table.children):
             for j, cell in enumerate(row.children):
+                paragraph = table.add_paragraph_to_cell(i, j)
+                paragraph.alignment = {
+                    None: None,
+                    "left": WD_PARAGRAPH_ALIGNMENT.LEFT,
+                    "right": WD_PARAGRAPH_ALIGNMENT.RIGHT,
+                    "center": WD_PARAGRAPH_ALIGNMENT.CENTER
+                }[cell.align]
                 RenderableFactory._create_runs(
-                    table.add_paragraph_to_cell(i, j),
+                    paragraph,
                     cell.children
                 )
 
