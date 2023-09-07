@@ -21,6 +21,9 @@ class TocPreProcessor:
 
 
 class TocPostProcessor:
+    def __init__(self, pages_offset: int = 0):
+        self._pages_offset = pages_offset
+
     def process(self, renderables: list[Renderable]):
         renderables_iter = iter(renderables)
 
@@ -34,5 +37,5 @@ class TocPostProcessor:
             i = 0
             for renderable in renderables_iter:
                 if isinstance(renderable, Heading):
-                    toc.set_page(i, renderable.rendered_page)
+                    toc.set_page(i, renderable.rendered_page + self._pages_offset)
                     i += 1

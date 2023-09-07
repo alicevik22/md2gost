@@ -26,7 +26,7 @@ class Converter:
                  template_path: str = None, title_path: str | None = None, title_pages: int = 1, debug: bool = False):
         self._output_path = output_path
         self._title_document: Document = docx.Document(title_path)
-        self._title_pages = title_pages
+        self._title_pages = title_pages if title_path else 0
         self._document: Document = docx.Document(template_path)
         self._document._body.clear_content()
         self._debugger = Debugger(self._document) if debug else None
@@ -107,7 +107,7 @@ class Converter:
             TocPreProcessor(),
             NumberingPreProcessor(),
             Renderer(self._document, self._layout_tracker, self._debugger),
-            TocPostProcessor(),
+            TocPostProcessor(self._title_pages),
         ]
 
         for processor in processors:
