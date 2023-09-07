@@ -3,9 +3,10 @@ from dataclasses import dataclass
 from typing import Generator
 from uuid import uuid4
 
-from docx.shared import Parented
+from docx.shared import Parented, Cm
 from docx.text.paragraph import Paragraph as DocxParagraph
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
+from docx.table import Table
 
 from md2gost.layout_tracker import LayoutState
 from md2gost.renderable import Renderable
@@ -51,7 +52,12 @@ class Caption(Renderable):
         self._docx_paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
 
     def render(self, previous_rendered: RenderedInfo, layout_state: LayoutState) -> Generator[
-        "RenderedInfo | Renderable", None, None]:
+            "RenderedInfo | Renderable", None, None]:
+        if previous_rendered and isinstance(previous_rendered.docx_element, Table):
+            self._docx_paragraph.paragraph_format.space_before = Cm(0.45)
+        else:
+            self._docx_paragraph.paragraph_format.space_before = 0
+
         height_data = ParagraphSizer(
             self._docx_paragraph,
             previous_rendered.docx_element
@@ -69,5 +75,8 @@ class Caption(Renderable):
                 layout_state.max_width
             ).calculate_height()
 
-        yield RenderedInfo(self._docx_paragraph, height_data.full + (layout_state.remaining_page_height
-                                                                     if self._docx_paragraph.paragraph_format.page_break_before else 0))
+        yield RenderedInfo(
+            self._docx_paragraph,
+            height_data.full +
+            (layout_state.remaining_page_height
+                if self._docx_paragraph.paragraph_format.page_break_before else 0))
