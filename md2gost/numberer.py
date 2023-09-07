@@ -24,4 +24,4 @@ class NumberingPreProcessor:
                 if reference.unique_name in self._reference_data:
                     reference.set_number(self._reference_data[reference.unique_name])
                 else:
-                    logging.warn(f"Invalid reference: {reference.unique_name}")
+                    logging.warn(f"Неверная ссылка: {reference.unique_name} не существует")

@@ -17,8 +17,8 @@ class RenderableFactory:
     def create(self, marko_element: extended_markdown.BlockElement,
                caption_info: CaptionInfo) -> Generator[Renderable, None, None]:
         paragraph = Paragraph(self._parent)
-        paragraph.add_run(f"{marko_element.get_type()} is not supported", color=RGBColor.from_string('ff0000'))
-        logging.warning(f"{marko_element.get_type()} is not supported")
+        paragraph.add_run(f"{marko_element.get_type()} не поддерживается", color=RGBColor.from_string('ff0000'))
+        logging.warning(f"{marko_element.get_type()} не поддерживается")
         yield paragraph
 
     @staticmethod
@@ -47,9 +47,9 @@ class RenderableFactory:
                 RenderableFactory._create_runs(paragraph_or_link,
                                                child.children, classes + [type(child)])
             else:
-                paragraph_or_link.add_run(f" {child.get_type()} is not supported ",
+                paragraph_or_link.add_run(f" {child.get_type()} не поддерживается ",
                                           color=RGBColor.from_string("FF0000"))
-                logging.warning(f"{child.get_type()} is not supported")
+                logging.warning(f"{child.get_type()} не поддерживается")
 
     @create.register
     def _(self, marko_paragraph: extended_markdown.Paragraph, caption_info: CaptionInfo):
