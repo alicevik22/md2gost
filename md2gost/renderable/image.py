@@ -41,7 +41,7 @@ class Image(Renderable, RequiresNumbering):
             try:
                 self._image = run.add_picture(os.path.join(environ['WORKING_DIR'], os.path.expanduser(path)))
             except FileNotFoundError:
-                logging.warning(f"Invalid image path: {path}, skipping...")
+                logging.warning(f"Путь {path} не существует, картинка не будет добавлена")
                 self._invalid = True
 
         self._number = None

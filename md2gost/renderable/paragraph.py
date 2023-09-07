@@ -4,6 +4,7 @@ from docx.table import Table
 from docx.oxml import CT_R
 from docx.shared import Length, Parented, RGBColor, Cm
 from docx.text.paragraph import Paragraph as DocxParagraph
+from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 from docx.text.paragraph import Run as DocxRun
 from docx.opc.constants import RELATIONSHIP_TYPE
 from docx.oxml.shared import qn
@@ -31,7 +32,7 @@ class Link:
         self._hyperlink.set(qn("w:anchor"), anchor)
 
     def add_run(self, text: str, is_bold: bool = None, is_italic: bool = None, color: RGBColor = None,
-                    strike_through: bool = None):
+                strike_through: bool = None):
 
         parts = text.split("-")
         for i, part in enumerate(parts):
@@ -141,6 +142,14 @@ class Paragraph(Renderable):
     @first_line_indent.setter
     def first_line_indent(self, value: Length):
         self._docx_paragraph.paragraph_format.first_line_indent = value
+
+    @property
+    def alignment(self):
+        return self._docx_paragraph.alignment
+
+    @alignment.setter
+    def alignment(self, value: WD_PARAGRAPH_ALIGNMENT):
+        self._docx_paragraph.alignment = value
 
     def render(self, previous_rendered: RenderedInfo, layout_state: LayoutState)\
             -> Generator[RenderedInfo | Renderable, None, None]:

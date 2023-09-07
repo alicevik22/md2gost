@@ -40,9 +40,10 @@ class Font:
         if "Times" in str(self._face.family_name) and self._freetypefont.size == 14:
             return Pt(16.05)
         if "Courier" in str(self._face.family_name) and self._freetypefont.size == 12:
-            return Pt(13.61)
+            return Pt(13.6)
         else:
             return Pt(self._face.size.height / 64)
+
     @cached_property
     def is_mono(self):
         self._face.load_char("i")
@@ -71,10 +72,12 @@ class ParagraphSizerResult:
 
 
 class ParagraphSizer:
-    def __init__(self, paragraph: Paragraph, previous_paragraph: Paragraph | None, max_width: Length):
+    def __init__(self, paragraph: Paragraph, previous_paragraph: Paragraph | None, 
+                 max_width: Length, tabs_size: Length = 0):  # todo: remove tabs_size and resolve tabs here
         self.previous_paragraph = previous_paragraph
         self.max_width = max_width
         self.paragraph = paragraph
+        self._tabs_size = tabs_size
 
         self.same_style_as_previous = (paragraph.style == previous_paragraph.style) if previous_paragraph else False
 
@@ -170,7 +173,6 @@ class ParagraphSizer:
     def calculate_height(self) -> ParagraphSizerResult:
         max_width = self.max_width
 
-
         docx_font: DocxFont = merge_objects(
             *[style.font for style in self._styles[::-1] if style.font],
             self.paragraph.style.font)
@@ -193,7 +195,8 @@ class ParagraphSizer:
             if isinstance(element, CT_R):
                 runs.append(Run(element, self.paragraph))
 
-        lines = self.count_lines(runs, max_width, docx_font, paragraph_format.first_line_indent or 0,
+        lines = self.count_lines(runs, max_width, docx_font,
+                                 (paragraph_format.first_line_indent or 0) + self._tabs_size,
                                  font.is_mono)
 
         previous_paragraph_format: ParagraphFormat = None

@@ -3,6 +3,7 @@ from functools import singledispatchmethod
 from typing import Generator
 
 from docx.shared import Parented, RGBColor
+from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 
 from .renderable import *
 from .renderable import Renderable
@@ -17,8 +18,8 @@ class RenderableFactory:
     def create(self, marko_element: extended_markdown.BlockElement,
                caption_info: CaptionInfo) -> Generator[Renderable, None, None]:
         paragraph = Paragraph(self._parent)
-        paragraph.add_run(f"{marko_element.get_type()} is not supported", color=RGBColor.from_string('ff0000'))
-        logging.warning(f"{marko_element.get_type()} is not supported")
+        paragraph.add_run(f"{marko_element.get_type()} не поддерживается", color=RGBColor.from_string('ff0000'))
+        logging.warning(f"{marko_element.get_type()} не поддерживается")
         yield paragraph
 
     @staticmethod
@@ -34,7 +35,7 @@ class RenderableFactory:
             elif isinstance(child, extended_markdown.CodeSpan):
                 paragraph_or_link.add_run(child.children, is_italic=True)
             elif isinstance(child, (extended_markdown.LineBreak, extended_markdown.Image)):
-                pass  # ignore
+                paragraph_or_link.add_run(" ")
             elif isinstance(child, extended_markdown.Reference):
                 paragraph_or_link.add_reference(child.unique_name)
             elif isinstance(child, extended_markdown.InlineEquation):
@@ -47,9 +48,9 @@ class RenderableFactory:
                 RenderableFactory._create_runs(paragraph_or_link,
                                                child.children, classes + [type(child)])
             else:
-                paragraph_or_link.add_run(f" {child.get_type()} is not supported ",
+                paragraph_or_link.add_run(f" {child.get_type()} не поддерживается ",
                                           color=RGBColor.from_string("FF0000"))
-                logging.warning(f"{child.get_type()} is not supported")
+                logging.warning(f"{child.get_type()} не поддерживается")
 
     @create.register
     def _(self, marko_paragraph: extended_markdown.Paragraph, caption_info: CaptionInfo):
@@ -108,11 +109,17 @@ class RenderableFactory:
     def _(self, marko_table: extended_markdown.Table, caption_info: CaptionInfo):
         table = Table(self._parent, len(marko_table.children), len(marko_table.children[0].children),
                       caption_info)
-
         for i, row in enumerate(marko_table.children):
             for j, cell in enumerate(row.children):
+                paragraph = table.add_paragraph_to_cell(i, j)
+                paragraph.alignment = {
+                    None: None,
+                    "left": WD_PARAGRAPH_ALIGNMENT.LEFT,
+                    "right": WD_PARAGRAPH_ALIGNMENT.RIGHT,
+                    "center": WD_PARAGRAPH_ALIGNMENT.CENTER
+                }[cell.align]
                 RenderableFactory._create_runs(
-                    table.add_paragraph_to_cell(i, j),
+                    paragraph,
                     cell.children
                 )
 

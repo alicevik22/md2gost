@@ -26,17 +26,17 @@ class Converter:
                  template_path: str = None, title_path: str | None = None, title_pages: int = 1, debug: bool = False):
         self._output_path = output_path
         self._title_document: Document = docx.Document(title_path)
-        self._title_pages = title_pages
+        self._title_pages = title_pages if title_path else 0
         self._document: Document = docx.Document(template_path)
         self._document._body.clear_content()
         self._debugger = Debugger(self._document) if debug else None
         with open(input_path, encoding="utf-8") as f:
             self.parser = Parser(self._document, f.read())
 
-        max_height = self._document.sections[-1].page_height - self._document.sections[
-            0].top_margin - BOTTOM_MARGIN  # - ((136 / 2) * (Pt(1)*72/96))  # todo add bottom margin detection with footer
+        max_height = self._document.sections[-1].page_height - self._document.sections[0] \
+            .top_margin - BOTTOM_MARGIN  # - ((136 / 2) * (Pt(1)*72/96))  # todo add bottom margin detection with footer
         max_width = self._document.sections[-1].page_width - self._document.sections[-1].left_margin \
-                    - self._document.sections[-1].right_margin
+            - self._document.sections[-1].right_margin
 
         self._layout_tracker = LayoutTracker(max_height, max_width)
 
@@ -107,7 +107,7 @@ class Converter:
             TocPreProcessor(),
             NumberingPreProcessor(),
             Renderer(self._document, self._layout_tracker, self._debugger),
-            TocPostProcessor(),
+            TocPostProcessor(self._title_pages),
         ]
 
         for processor in processors:

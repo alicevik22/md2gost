@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "md2gost"
-version = "0.3.0"
+version = "0.3.1"
 description = "Скрипт для генерации docx отчета в соответствии с ГОСТ из markdown файла"
 authors = ["witelokk <death.thunder@yandex.ru>"]
 readme = "README.md"

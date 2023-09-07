@@ -45,7 +45,7 @@ class DocxParagraphPygmentsFormatter(Formatter):
         self._paragraphs.pop(-1)  # remove last empty line
 
 
-LISTING_OFFSET = Pt(31) - Twips(108 * 2)  # todo: fix
+LISTING_OFFSET = Pt(14)
 
 
 class Listing(Renderable, RequiresNumbering):
