@@ -4,7 +4,7 @@ from uuid import uuid4
 
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 from docx.text.paragraph import Paragraph as DocxParagraph
-from docx.shared import Parented, Length
+from docx.shared import Parented, Length, Cm
 
 from . import Renderable
 from .paragraph_sizer import ParagraphSizer
@@ -89,7 +89,7 @@ class Heading(Paragraph):
             self._docx_paragraph,
             previous_rendered.docx_element
             if previous_rendered and isinstance(previous_rendered.docx_element, DocxParagraph) else None,
-            layout_state.max_width).calculate_height()
+            layout_state.max_width, Cm(1.25)).calculate_height()
 
         if layout_state.current_page_height == 0 and layout_state.page != 1:
             height_data.before = 0

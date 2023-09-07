@@ -32,7 +32,7 @@ class Link:
         self._hyperlink.set(qn("w:anchor"), anchor)
 
     def add_run(self, text: str, is_bold: bool = None, is_italic: bool = None, color: RGBColor = None,
-                    strike_through: bool = None):
+                strike_through: bool = None):
 
         parts = text.split("-")
         for i, part in enumerate(parts):

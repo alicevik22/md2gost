@@ -72,10 +72,12 @@ class ParagraphSizerResult:
 
 
 class ParagraphSizer:
-    def __init__(self, paragraph: Paragraph, previous_paragraph: Paragraph | None, max_width: Length):
+    def __init__(self, paragraph: Paragraph, previous_paragraph: Paragraph | None, 
+                 max_width: Length, tabs_size: Length = 0):  # todo: remove tabs_size and resolve tabs here
         self.previous_paragraph = previous_paragraph
         self.max_width = max_width
         self.paragraph = paragraph
+        self._tabs_size = tabs_size
 
         self.same_style_as_previous = (paragraph.style == previous_paragraph.style) if previous_paragraph else False
 
@@ -193,7 +195,8 @@ class ParagraphSizer:
             if isinstance(element, CT_R):
                 runs.append(Run(element, self.paragraph))
 
-        lines = self.count_lines(runs, max_width, docx_font, paragraph_format.first_line_indent or 0,
+        lines = self.count_lines(runs, max_width, docx_font,
+                                 (paragraph_format.first_line_indent or 0) + self._tabs_size,
                                  font.is_mono)
 
         previous_paragraph_format: ParagraphFormat = None
