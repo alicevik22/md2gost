@@ -33,10 +33,10 @@ class Converter:
         with open(input_path, encoding="utf-8") as f:
             self.parser = Parser(self._document, f.read())
 
-        max_height = self._document.sections[-1].page_height - self._document.sections[
-            0].top_margin - BOTTOM_MARGIN  # - ((136 / 2) * (Pt(1)*72/96))  # todo add bottom margin detection with footer
+        max_height = self._document.sections[-1].page_height - self._document.sections[0] \
+            .top_margin - BOTTOM_MARGIN  # - ((136 / 2) * (Pt(1)*72/96))  # todo add bottom margin detection with footer
         max_width = self._document.sections[-1].page_width - self._document.sections[-1].left_margin \
-                    - self._document.sections[-1].right_margin
+            - self._document.sections[-1].right_margin
 
         self._layout_tracker = LayoutTracker(max_height, max_width)
 

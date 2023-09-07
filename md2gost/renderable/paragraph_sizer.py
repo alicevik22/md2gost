@@ -40,9 +40,10 @@ class Font:
         if "Times" in str(self._face.family_name) and self._freetypefont.size == 14:
             return Pt(16.05)
         if "Courier" in str(self._face.family_name) and self._freetypefont.size == 12:
-            return Pt(13.61)
+            return Pt(13.6)
         else:
             return Pt(self._face.size.height / 64)
+
     @cached_property
     def is_mono(self):
         self._face.load_char("i")
@@ -169,7 +170,6 @@ class ParagraphSizer:
 
     def calculate_height(self) -> ParagraphSizerResult:
         max_width = self.max_width
-
 
         docx_font: DocxFont = merge_objects(
             *[style.font for style in self._styles[::-1] if style.font],

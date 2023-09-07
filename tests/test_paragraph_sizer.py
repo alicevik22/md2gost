@@ -65,6 +65,7 @@ class TestFont(unittest.case.TestCase):
         font = Font("Times New Roman", False, False, 12)
         self.assertFalse(font.is_mono)
 
+
 class TestParagraphSizer(unittest.TestCase):
     def setUp(self):
         self._document, self._max_height, self._max_width = _create_test_document()
@@ -90,7 +91,6 @@ class TestParagraphSizer(unittest.TestCase):
         ps = ParagraphSizer(paragraph, None, self._max_width)
 
         self.assertEqual(4, ps.count_lines(paragraph.runs, self._max_width, paragraph.style.font, Cm(1.25)))
-
 
     def test_count_lines_short_last_line(self):
         paragraph = self._document.add_paragraph()
@@ -226,7 +226,7 @@ class TestParagraphSizer(unittest.TestCase):
 
         self.assertEqual(1, ps.count_lines(paragraph.runs, self._max_width - LISTING_OFFSET, paragraph.style.font, 0, True))
 
-    def test_count_lines_courier7(self):
+    def test_count_lines_courier8(self):
         paragraph = self._document.add_paragraph(style="Code")
         paragraph.add_run(
             """            #         and ((min(2, height_data.lines) - 1) * height_data.line_spacing + 1) * height_data.line_height\\""")
@@ -235,7 +235,7 @@ class TestParagraphSizer(unittest.TestCase):
 
         self.assertEqual(2, ps.count_lines(paragraph.runs, self._max_width - LISTING_OFFSET, paragraph.style.font, 0, True))
 
-    def test_count_lines_courier8(self):
+    def test_count_lines_courier9(self):
         paragraph = self._document.add_paragraph(style="Code")
         paragraph.add_run(
             """        return self._docx_paragraph.paragraph_format.first_line_indent""")
@@ -244,7 +244,7 @@ class TestParagraphSizer(unittest.TestCase):
 
         self.assertEqual(2, ps.count_lines(paragraph.runs, self._max_width - LISTING_OFFSET, paragraph.style.font, 0, True))
 
-    def test_count_lines_courier9(self):
+    def test_count_lines_courier10(self):
         paragraph = self._document.add_paragraph(style="Code")
         paragraph.add_run(
             """        self._docx_paragraph.paragraph_format.first_line_indent = value""")
@@ -253,14 +253,33 @@ class TestParagraphSizer(unittest.TestCase):
 
         self.assertEqual(2, ps.count_lines(paragraph.runs, self._max_width - LISTING_OFFSET, paragraph.style.font, 0, True))
 
-    def test_count_lines_courier10(self):
+    def test_count_lines_courier11(self):
         paragraph = self._document.add_paragraph(style="Code")
         paragraph.add_run(
             """                if previous_rendered and isinstance(previous_rendered.docx_element, DocxParagraph) else None,""")
 
         ps = ParagraphSizer(paragraph, None, self._max_width - LISTING_OFFSET)
 
-        self.assertEqual(3, ps.count_lines(paragraph.runs, self._max_width - LISTING_OFFSET, paragraph.style.font, 0, True))
+        self.assertEqual(2, ps.count_lines(paragraph.runs, self._max_width - LISTING_OFFSET, paragraph.style.font, 0, True))
+
+    def test_count_lines_courier12(self):
+        paragraph = self._document.add_paragraph(style="Code")
+        paragraph.add_run(
+            '        System.out.printf("Square: %f%n", circle.calculateSquare());')
+
+        ps = ParagraphSizer(paragraph, None, self._max_width - LISTING_OFFSET)
+
+        self.assertEqual(1, ps.count_lines(paragraph.runs, self._max_width - LISTING_OFFSET, paragraph.style.font, 0, True))
+
+    def test_count_lines_courier13(self):
+        paragraph = self._document.add_paragraph(style="Code")
+        paragraph.add_run(
+            '        System.out.printf("circle radius: %f%n", circle.getRadius());')
+
+        ps = ParagraphSizer(paragraph, None, self._max_width - LISTING_OFFSET)
+
+        self.assertEqual(2, ps.count_lines(paragraph.runs, self._max_width - LISTING_OFFSET, paragraph.style.font, 0, True))
+
 
     def test_count_lines_courier_multiple_runs(self):
         paragraph = self._document.add_paragraph(style="Code")
@@ -278,7 +297,7 @@ class TestParagraphSizer(unittest.TestCase):
 
         ps = ParagraphSizer(paragraph, None, self._max_width - LISTING_OFFSET)
 
-        self.assertEqual(1, ps.count_lines(paragraph.runs, self._max_width - LISTING_OFFSET, paragraph.style.font, 0, True))
+        self.assertEqual(1, ps.count_lines(paragraph.runs, self._max_width - LISTING_OFFSET, paragraph.style.font, 0, True))    
 
     # def test_count_lines_courier_multiple_runs3(self):
     #     paragraph = self._document.add_paragraph(style="Code")
