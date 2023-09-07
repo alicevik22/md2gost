@@ -53,10 +53,11 @@ class Caption(Renderable):
 
     def render(self, previous_rendered: RenderedInfo, layout_state: LayoutState) -> Generator[
             "RenderedInfo | Renderable", None, None]:
-        if previous_rendered and isinstance(previous_rendered.docx_element, Table):
+        if previous_rendered and isinstance(previous_rendered.docx_element, Table) \
+                and not (layout_state.current_page_height == 0 and layout_state.page != 1):
             self._docx_paragraph.paragraph_format.space_before = Cm(0.45)
         else:
-            self._docx_paragraph.paragraph_format.space_before = 0
+            self._docx_paragraph.paragraph_format.space_before = None
 
         height_data = ParagraphSizer(
             self._docx_paragraph,
