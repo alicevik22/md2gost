@@ -34,7 +34,7 @@ class RenderableFactory:
             elif isinstance(child, extended_markdown.CodeSpan):
                 paragraph_or_link.add_run(child.children, is_italic=True)
             elif isinstance(child, (extended_markdown.LineBreak, extended_markdown.Image)):
-                pass  # ignore
+                paragraph_or_link.add_run(" ")
             elif isinstance(child, extended_markdown.Reference):
                 paragraph_or_link.add_reference(child.unique_name)
             elif isinstance(child, extended_markdown.InlineEquation):
