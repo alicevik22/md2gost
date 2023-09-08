@@ -1,5 +1,7 @@
 import logging
+import os
 from functools import singledispatchmethod
+from os import environ
 from typing import Generator
 
 from docx.shared import Parented, RGBColor
@@ -78,7 +80,13 @@ class RenderableFactory:
     @create.register
     def _(self, marko_code_block: extended_markdown.FencedCode | extended_markdown.CodeBlock, caption_info: CaptionInfo):
         listing = Listing(self._parent, marko_code_block.lang, caption_info)
-        listing.set_text(marko_code_block.children[0].children)
+
+        text = marko_code_block.children[0].children
+        if marko_code_block.extra:
+            with open(os.path.join(environ['WORKING_DIR'], os.path.expanduser(marko_code_block.extra))) as f:
+                text = f.read() + text
+
+        listing.set_text(text)
         yield listing
 
     @create.register
