@@ -32,14 +32,14 @@ def main():
         os.environ["SYNTAX_HIGHLIGHTING"] = "1"
 
     if not filename.endswith(".md"):
-        print("Error: filename must have md format")
+        print("Ошибка: файл должен иметь расширение .md")
         exit(1)
 
     os.environ["WORKING_DIR"] = os.path.dirname(filename)
 
     if output:
         if not output.endswith(".docx"):
-            print("Error: output must have docx format")
+            print("Ошибка: выходной файл должен иметь расширение .docx")
             exit(2)
     else:
         output = os.path.basename(filename).replace(".md", ".docx")
@@ -57,7 +57,7 @@ def main():
         "Создано при помощи https://github.com/witelokk/md2gost"
 
     document.save(output)
-    print(f"Generated document: {os.path.abspath(output)}")
+    print(f"Сгенерированный документ: {os.path.abspath(output)}")
 
     if debug:
         import platform
@@ -69,6 +69,7 @@ def main():
         else:                                   # linux variants
             import subprocess
             subprocess.call(('xdg-open', output))
+
 
 if __name__ == "__main__":
     main()
