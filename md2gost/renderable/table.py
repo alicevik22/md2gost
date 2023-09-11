@@ -11,7 +11,7 @@ from ..docx_elements import *
 from ..layout_tracker import LayoutState
 from ..rendered_info import RenderedInfo
 
-CELL_OFFSET = Pt(9) - Twips(108*2)
+CELL_OFFSET = Pt(10)
 
 
 class Table(Renderable, RequiresNumbering):
