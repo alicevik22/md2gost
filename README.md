@@ -26,7 +26,7 @@ pipx install git+https://github.com/witelokk/md2gost.git@main
 
 ## Использование
 ```
-(python -m ) md2gost [-h] [-o OUTPUT] [-T TITLE] [--title-pages TITLE_PAGES] [--syntax-highlighting | --no-syntax-highlighting] [--debug] filename
+(python -m ) md2gost [-h] [-o OUTPUT] [-T TITLE] [--title-pages TITLE_PAGES] [--syntax-highlighting | --no-syntax-highlighting] [--debug] [filenames ...]
 ```
 
 При отсутствии флага -o, сгенерированый отчет будет иметь имя с названием исходного файла и расширением .md.
