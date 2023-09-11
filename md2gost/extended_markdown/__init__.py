@@ -14,6 +14,7 @@ from marko.ext.gfm.elements import *
 from .caption import Caption
 from .equation import Equation
 from .heading import Heading
+from .setext_heading import SetextHeading
 from .reference import Reference
 from .table import Table
 from .toc import TOC
@@ -28,8 +29,9 @@ Extension = MarkoExtension(
         Table,
         TOC,
         Heading,
+        SetextHeading,
         InlineEquation,
-        Image
+        Image,
     ]
 )
 

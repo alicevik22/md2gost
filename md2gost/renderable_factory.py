@@ -1,5 +1,7 @@
 import logging
+import os
 from functools import singledispatchmethod
+from os import environ
 from typing import Generator
 
 from docx.shared import Parented, RGBColor
@@ -70,7 +72,7 @@ class RenderableFactory:
         yield paragraph
 
     @create.register
-    def _(self, marko_heading: extended_markdown.Heading, caption_info: CaptionInfo):
+    def _(self, marko_heading: extended_markdown.Heading | extended_markdown.SetextHeading, caption_info: CaptionInfo):
         heading = Heading(self._parent, marko_heading.level, marko_heading.numbered)
         RenderableFactory._create_runs(heading, marko_heading.children)
         yield heading
@@ -78,7 +80,16 @@ class RenderableFactory:
     @create.register
     def _(self, marko_code_block: extended_markdown.FencedCode | extended_markdown.CodeBlock, caption_info: CaptionInfo):
         listing = Listing(self._parent, marko_code_block.lang, caption_info)
-        listing.set_text(marko_code_block.children[0].children)
+
+        text = marko_code_block.children[0].children
+        if marko_code_block.extra:
+            try:
+                with open(marko_code_block.extra) as f:
+                    text = f.read() + text
+            except FileNotFoundError:
+                logging.warning(f"Файл с кодом не найден: {marko_code_block.extra}")
+
+        listing.set_text(text)
         yield listing
 
     @create.register

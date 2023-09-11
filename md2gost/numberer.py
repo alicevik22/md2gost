@@ -14,6 +14,10 @@ class NumberingPreProcessor:
         for requires_numbering in filter(lambda x: isinstance(x, RequiresNumbering), renderables):
             requires_numbering.set_number(self._categories[requires_numbering.numbering_category] + 1)
             self._categories[requires_numbering.numbering_category] += 1
+
+            if not requires_numbering.numbering_unique_name:
+                continue
+
             if requires_numbering.numbering_unique_name in self._reference_data:
                 logging.warning(f"Дублирование названия подписи: {requires_numbering.numbering_unique_name}. Ссылки будут созданы некорректно")
             self._reference_data[requires_numbering.numbering_unique_name] =\

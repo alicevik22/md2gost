@@ -26,7 +26,7 @@ pipx install git+https://github.com/witelokk/md2gost.git@main
 
 ## Использование
 ```
-(python -m ) md2gost [-h] [-o OUTPUT] [-T TITLE] [--title-pages TITLE_PAGES] [--syntax-highlighting | --no-syntax-highlighting] [--debug] filename
+(python -m ) md2gost [-h] [-o OUTPUT] [-T TITLE] [--title-pages TITLE_PAGES] [--syntax-highlighting | --no-syntax-highlighting] [--debug] [filenames ...]
 ```
 
 При отсутствии флага -o, сгенерированый отчет будет иметь имя с названием исходного файла и расширением .md.
@@ -34,7 +34,7 @@ pipx install git+https://github.com/witelokk/md2gost.git@main
 ## Фичи
 
 ### Добавление титульной страницы
-Чтобы добавить титульную страницу используйте флаг `--title`(`-t`) с путем до файла с титульной страницей (в формате docx).
+Чтобы добавить титульную страницу используйте флаг `--title`(`-T`) с путем до файла с титульной страницей (в формате docx).
 Если в файле более чем одна страница, используйле флаг `--title-pages` с количеством страниц.
 
 Пример `md2gost report.md --title title.docx --title-pages 2`
@@ -94,3 +94,9 @@ $$
 ### Подсветка синтаксиса в листингах
 Используйте флаг ```--syntax-highlighting```
 
+### Импорт кода в листингах
+~~~markdown
+```python code.py
+```
+~~~
+где `code.py` - путь до файла с кодом

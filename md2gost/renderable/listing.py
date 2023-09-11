@@ -1,3 +1,4 @@
+import logging
 from copy import copy
 import os
 from typing import Generator, Callable
@@ -9,6 +10,7 @@ from docx.table import Table
 from pygments import highlight
 from pygments.formatter import Formatter
 from pygments.lexers import get_lexer_by_name
+from pygments.util import ClassNotFound
 
 from .caption import Caption, CaptionInfo
 from .paragraph import Paragraph
@@ -78,12 +80,16 @@ class Listing(Renderable, RequiresNumbering):
 
         if self._language and "SYNTAX_HIGHLIGHTING" in os.environ and os.environ["SYNTAX_HIGHLIGHTING"] == "1":
             formatter = DocxParagraphPygmentsFormatter(self.paragraphs, lambda: create_paragraph())
-            highlight(text, get_lexer_by_name(self._language), formatter)
-        else:
-            for line in text.removesuffix("\n").split("\n"):
-                paragraph = create_paragraph()
-                paragraph.add_run(line)
-                self.paragraphs.append(paragraph)
+            try:
+                highlight(text, get_lexer_by_name(self._language), formatter)
+                return
+            except ClassNotFound:
+                logging.warning(f"Язык {self._language} не поддерживается, синтаксис не будет подсвечен")
+
+        for line in text.removesuffix("\n").split("\n"):
+            paragraph = create_paragraph()
+            paragraph.add_run(line)
+            self.paragraphs.append(paragraph)
 
     def set_number(self, number: int):
         self._number = number

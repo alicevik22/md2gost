@@ -12,7 +12,8 @@ def main():
         description="Этот скрипт предназначен для генерирования отчетов/\
                 курсовых работ по ГОСТ в формате docx из Markdown-файла."
     )
-    parser.add_argument("filename", help="Путь до исходного markdown файла")
+    parser.add_argument("filenames", nargs="*",
+                        help="Путь до исходного(-ых) markdown файла(-ов)")
     parser.add_argument("-o", "--output", help="Путь до сгенерированного \
                             файла")
     parser.add_argument("-t", "--template", help="Путь до шаблона .docx")
@@ -26,28 +27,30 @@ def main():
                         action="store_true")
 
     args = parser.parse_args()
-    filename, output, template, title, title_pages, debug = \
-        args.filename, args.output, args.template, args.title, args.title_pages, args.debug
+    filenames, output, template, title, title_pages, debug = \
+        args.filenames, args.output, args.template, args.title, args.title_pages, args.debug
     if args.syntax_highlighting:
         os.environ["SYNTAX_HIGHLIGHTING"] = "1"
 
-    if not filename.endswith(".md"):
-        print("Error: filename must have md format")
-        exit(1)
+    if not filenames:
+        print("Нет входных файлов!")
+        return -1
 
-    os.environ["WORKING_DIR"] = os.path.dirname(filename)
+    if not all(fn.endswith(".md") for fn in filenames):
+        print("Ошибка: файл должен иметь расширение .md")
+        exit(1)
 
     if output:
         if not output.endswith(".docx"):
-            print("Error: output must have docx format")
+            print("Ошибка: выходной файл должен иметь расширение .docx")
             exit(2)
     else:
-        output = os.path.basename(filename).replace(".md", ".docx")
+        output = os.path.basename(filenames[0]).replace(".md", ".docx")
 
     if not template:
         template = os.path.join(os.path.dirname(__file__), "Template.docx")
 
-    converter = Converter(filename, output, template, title, title_pages, debug)
+    converter = Converter(filenames, output, template, title, title_pages, debug)
     converter.convert()
 
     document = converter.document
@@ -57,7 +60,7 @@ def main():
         "Создано при помощи https://github.com/witelokk/md2gost"
 
     document.save(output)
-    print(f"Generated document: {os.path.abspath(output)}")
+    print(f"Сгенерированный документ: {os.path.abspath(output)}")
 
     if debug:
         import platform
@@ -69,6 +72,7 @@ def main():
         else:                                   # linux variants
             import subprocess
             subprocess.call(('xdg-open', output))
+
 
 if __name__ == "__main__":
     main()

@@ -67,7 +67,7 @@ class Caption(Renderable):
         ).calculate_height()
 
         # if three more lines don't fit, move it to the next page (so there is no only caption on the end of the page)
-        if self._before and ((height_data.lines + 2 - 1) * height_data.line_spacing + 1) * height_data.line_height \
+        if self._before and ((height_data.lines + 3 - 1) * height_data.line_spacing + 1) * height_data.line_height \
                 > layout_state.remaining_page_height:
             self._docx_paragraph.paragraph_format.page_break_before = True
             height_data = ParagraphSizer(
