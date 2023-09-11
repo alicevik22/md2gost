@@ -72,7 +72,7 @@ class RenderableFactory:
         yield paragraph
 
     @create.register
-    def _(self, marko_heading: extended_markdown.Heading, caption_info: CaptionInfo):
+    def _(self, marko_heading: extended_markdown.Heading | extended_markdown.SetextHeading, caption_info: CaptionInfo):
         heading = Heading(self._parent, marko_heading.level, marko_heading.numbered)
         RenderableFactory._create_runs(heading, marko_heading.children)
         yield heading
