@@ -32,6 +32,10 @@ def main():
     if args.syntax_highlighting:
         os.environ["SYNTAX_HIGHLIGHTING"] = "1"
 
+    if not filenames:
+        print("Нет входных файлов!")
+        return -1
+
     if not all(fn.endswith(".md") for fn in filenames):
         print("Ошибка: файл должен иметь расширение .md")
         exit(1)
