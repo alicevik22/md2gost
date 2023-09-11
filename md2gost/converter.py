@@ -1,3 +1,4 @@
+import os.path
 from io import BytesIO
 
 import docx
@@ -22,7 +23,7 @@ BOTTOM_MARGIN = Cm(1.86)
 class Converter:
     """Converts markdown file to docx file"""
 
-    def __init__(self, input_path: str, output_path: str,
+    def __init__(self, input_paths: list[str], output_path: str,
                  template_path: str = None, title_path: str | None = None, title_pages: int = 1, debug: bool = False):
         self._output_path = output_path
         self._title_document: Document = docx.Document(title_path)
@@ -30,8 +31,15 @@ class Converter:
         self._document: Document = docx.Document(template_path)
         self._document._body.clear_content()
         self._debugger = Debugger(self._document) if debug else None
-        with open(input_path, encoding="utf-8") as f:
-            self.parser = Parser(self._document, f.read())
+        self._parser = Parser(self._document)
+        for path in input_paths:
+            try:
+                with open(path, encoding="utf-8") as f:
+                    text = f.read()
+            except FileNotFoundError:
+                print(f"Файл {path} не найден!")
+                exit(-3)
+            self._parser.parse(text, os.path.dirname(path))
 
         max_height = self._document.sections[-1].page_height - self._document.sections[0] \
             .top_margin - BOTTOM_MARGIN  # - ((136 / 2) * (Pt(1)*72/96))  # todo add bottom margin detection with footer
@@ -101,7 +109,7 @@ class Converter:
         self._document._body._element.xpath("w:sectPr/w:pgNumType")[0].set(qn("w:start"), str(self._title_pages+1))
 
     def convert(self):
-        renderables = list(self.parser.parse())
+        renderables = list(self._parser.get_rendered())
 
         processors = [
             TocPreProcessor(),

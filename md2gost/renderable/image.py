@@ -39,7 +39,7 @@ class Image(Renderable, RequiresNumbering):
             self._image = run.add_picture(bytesio)
         else:
             try:
-                self._image = run.add_picture(os.path.join(environ['WORKING_DIR'], os.path.expanduser(path)))
+                self._image = run.add_picture(path)
             except FileNotFoundError:
                 logging.warning(f"Путь {path} не существует, картинка не будет добавлена")
                 self._invalid = True

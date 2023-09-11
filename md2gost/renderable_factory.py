@@ -84,7 +84,7 @@ class RenderableFactory:
         text = marko_code_block.children[0].children
         if marko_code_block.extra:
             try:
-                with open(os.path.join(environ['WORKING_DIR'], os.path.expanduser(marko_code_block.extra))) as f:
+                with open(marko_code_block.extra) as f:
                     text = f.read() + text
             except FileNotFoundError:
                 logging.warning(f"Файл с кодом не найден: {marko_code_block.extra}")
