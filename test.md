@@ -1,5 +1,5 @@
 # hello
 world
 
-```xml ../mirea-java/mirea-java.iml
+```iml ../mirea-java/mirea-java.iml
 ```
