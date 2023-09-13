@@ -70,6 +70,7 @@ class Caption(Renderable):
         if self._before and ((height_data.lines + 3 - 1) * height_data.line_spacing + 1) * height_data.line_height \
                 > layout_state.remaining_page_height:
             self._docx_paragraph.paragraph_format.page_break_before = True
+            self._docx_paragraph.paragraph_format.space_before = None
             height_data = ParagraphSizer(
                 self._docx_paragraph,
                 None,
