@@ -6,18 +6,19 @@ from marko.block import BlankLine, Paragraph, CodeBlock, FencedCode, \
     BlockElement
 from marko.inline import Image
 
-from .extended_markdown import markdown, Caption
-from .renderable.caption import CaptionInfo
-from .renderable.renderable import Renderable
-from .renderable_factory import RenderableFactory
+from md2gost.extended_markdown import markdown, Caption
+from md2gost.renderable.caption import CaptionInfo
+from md2gost.renderable.renderable import Renderable
+from md2gost.renderable_factory import RenderableFactory
+
+from .parser import Parser
 
 
-class Parser:
+class MarkdownParser(Parser):
     """Parses given markdown string and returns Renderable elements"""
 
     def __init__(self, document: Document):
         self._document = document
-        self._renderables = []
         self._factory = RenderableFactory(self._document._body)
         self._caption_info: CaptionInfo | None = None
 
@@ -35,7 +36,8 @@ class Parser:
             marko_element.extra = os.path.join(
                 relative_dir_path, os.path.expanduser(marko_element.extra))
 
-    def parse(self, text, relative_dir_path: str) -> None:
+    def parse(self, text, relative_dir_path: str)\
+            -> Generator[Renderable, None, None]:
         marko_parsed = markdown.parse(text)
         for marko_element in marko_parsed.children:
             self.resolve_paths(marko_element, relative_dir_path)
@@ -48,9 +50,5 @@ class Parser:
                     CaptionInfo(marko_element.unique_name, marko_element.text)
                 continue
 
-            for renderable in self._factory.create(marko_element, self._caption_info):
-                self._renderables.append(renderable)
+            yield from self._factory.create(marko_element, self._caption_info)
             self._caption_info = None
-
-    def get_rendered(self) -> list[Renderable]:
-        return self._renderables

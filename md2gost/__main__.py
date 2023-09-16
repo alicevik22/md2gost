@@ -1,8 +1,10 @@
 #!/bin/python
 from argparse import ArgumentParser, BooleanOptionalAction
 import os.path
+import sys
 from getpass import getuser
 
+from md2gost.parser import ParserFactory
 from .converter import Converter
 
 
@@ -36,14 +38,10 @@ def main():
         print("Нет входных файлов!")
         return -1
 
-    if not all(fn.endswith(".md") for fn in filenames):
-        print("Ошибка: файл должен иметь расширение .md")
-        exit(1)
-
     if output:
         if not output.endswith(".docx"):
             print("Ошибка: выходной файл должен иметь расширение .docx")
-            exit(2)
+            return -1
     else:
         output = os.path.basename(filenames[0]).replace(".md", ".docx")
 
@@ -75,4 +73,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

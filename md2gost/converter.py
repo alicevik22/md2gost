@@ -1,4 +1,6 @@
+import logging
 import os.path
+import sys
 from io import BytesIO
 
 import docx
@@ -12,7 +14,9 @@ from docx.text.paragraph import Paragraph
 from .debugger import Debugger
 from .layout_tracker import LayoutTracker
 from .numberer import NumberingPreProcessor
-from .parser_ import Parser
+from md2gost.parser.markdown_parser import MarkdownParser
+from .parser import ParserFactory
+from .renderable import Renderable
 from .toc_processor import TocPreProcessor, TocPostProcessor
 from .renderer import Renderer
 from .util import merge_objects
@@ -31,7 +35,8 @@ class Converter:
         self._document: Document = docx.Document(template_path)
         self._document._body.clear_content()
         self._debugger = Debugger(self._document) if debug else None
-        self._parser = Parser(self._document)
+        self._renderables: list[Renderable] = []
+        parser_factory = ParserFactory()
         for path in input_paths:
             try:
                 with open(path, encoding="utf-8") as f:
@@ -39,7 +44,15 @@ class Converter:
             except FileNotFoundError:
                 print(f"Файл {path} не найден!")
                 exit(-3)
-            self._parser.parse(text, os.path.dirname(path))
+
+            extension = path.split(".")[-1]
+            parser = parser_factory.create_by_extension(
+                extension, self._document)
+            if not parser:
+                logging.critical(f"Формат входных файлов {extension} не поддерживается")
+                sys.exit(-1)
+
+            self._renderables += list(parser.parse(text, os.path.dirname(path)))
 
         max_height = self._document.sections[-1].page_height - self._document.sections[0] \
             .top_margin - BOTTOM_MARGIN  # - ((136 / 2) * (Pt(1)*72/96))  # todo add bottom margin detection with footer
@@ -109,8 +122,6 @@ class Converter:
         self._document._body._element.xpath("w:sectPr/w:pgNumType")[0].set(qn("w:start"), str(self._title_pages+1))
 
     def convert(self):
-        renderables = list(self._parser.get_rendered())
-
         processors = [
             TocPreProcessor(),
             NumberingPreProcessor(),
@@ -119,7 +130,7 @@ class Converter:
         ]
 
         for processor in processors:
-            processor.process(renderables)
+            processor.process(self._renderables)
 
     @property
     def document(self) -> Document:
