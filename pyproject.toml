@@ -6,7 +6,7 @@ authors = ["witelokk <death.thunder@yandex.ru>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.11"
 python-docx = "^0.8.11"
 marko = "^2.0.0"
 freetype-py = "^2.4.0"
