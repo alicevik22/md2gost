@@ -84,7 +84,7 @@ class RenderableFactory:
         text = marko_code_block.children[0].children
         if marko_code_block.extra:
             try:
-                with open(marko_code_block.extra, "utf-8") as f:
+                with open(marko_code_block.extra, encoding="utf-8") as f:
                     text = f.read() + text
             except FileNotFoundError:
                 logging.warning(f"Файл с кодом не найден: {marko_code_block.extra}")
