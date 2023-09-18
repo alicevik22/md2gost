@@ -93,6 +93,10 @@ class RenderableFactory:
         yield listing
 
     @create.register
+    def _(self, marko_thematic_break: extended_markdown.ThematicBreak):
+        yield from []
+
+    @create.register
     def _(self, marko_equation: extended_markdown.Equation, caption_info: CaptionInfo):
         equation = Equation(self._parent, marko_equation.latex_equation, caption_info)
         yield equation
