@@ -4,7 +4,7 @@ from docx.oxml import CT_Tbl, CT_R
 from docx.shared import Parented, Length
 from docx.table import Table, _Row, _Cell
 
-from md2gost.util import create_element
+from .util import create_element
 
 
 __all__ = [

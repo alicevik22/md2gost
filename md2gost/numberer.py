@@ -1,8 +1,8 @@
 import logging
 from collections import defaultdict
 
-from md2gost.renderable import Renderable, Paragraph
-from md2gost.renderable.requires_numbering import RequiresNumbering
+from .renderable import Renderable, Paragraph
+from .renderable.requires_numbering import RequiresNumbering
 
 
 class NumberingPreProcessor:

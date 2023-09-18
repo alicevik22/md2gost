@@ -8,9 +8,9 @@ from docx.text.paragraph import Paragraph as DocxParagraph
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 from docx.table import Table
 
-from md2gost.layout_tracker import LayoutState
-from md2gost.renderable import Renderable
-from md2gost.rendered_info import RenderedInfo
+from ..layout_tracker import LayoutState
+from .renderable import Renderable
+from ..rendered_info import RenderedInfo
 from .paragraph_sizer import ParagraphSizer
 from ..util import create_element
 
