@@ -93,7 +93,7 @@ class RenderableFactory:
         yield listing
 
     @create.register
-    def _(self, marko_thematic_break: extended_markdown.ThematicBreak):
+    def _(self, marko_thematic_break: extended_markdown.ThematicBreak, caption_info: CaptionInfo):
         yield from []
 
     @create.register
