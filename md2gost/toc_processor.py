@@ -1,6 +1,6 @@
-from md2gost.renderable import Renderable
-from md2gost.renderable.heading import Heading
-from md2gost.renderable.toc import ToC
+from .renderable import Renderable
+from .renderable.heading import Heading
+from .renderable.toc import ToC
 
 
 class TocPreProcessor:

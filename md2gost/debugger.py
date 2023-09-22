@@ -13,7 +13,7 @@ from docx.oxml.shape import CT_Picture
 from docx.oxml.xmlchemy import BaseOxmlElement, OneAndOnlyOne
 from docx.text.paragraph import Paragraph
 
-from md2gost.util import create_element
+from .util import create_element
 
 EMUS_PER_PX = Pt(1)
 BOTTOM_MARGIN = Cm(1.86)
