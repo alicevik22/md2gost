@@ -38,7 +38,7 @@ class Link:
         for i, part in enumerate(parts):
             docx_run = DocxRun(create_element("w:r"), self._docx_paragraph)
             self._hyperlink.append(docx_run._element)
-            docx_run.text = text
+            docx_run.text = part
             docx_run.style = self._style
             docx_run.bold = is_bold
             docx_run.italic = is_italic
