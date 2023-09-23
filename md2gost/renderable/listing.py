@@ -45,7 +45,7 @@ class DocxParagraphPygmentsFormatter(Formatter):
         self._paragraphs.pop(-1)  # remove last empty line
 
 
-LISTING_OFFSET = 254800
+LISTING_OFFSET = 254635
 
 
 class Listing(Renderable, RequiresNumbering):
@@ -105,14 +105,6 @@ class Listing(Renderable, RequiresNumbering):
         previous = None
 
         table_height = 0
-
-        # if first line doesn't fit move listing to the next page
-        paragraph_layout_state = copy(layout_state)
-        paragraph_layout_state.max_width -= LISTING_OFFSET
-        paragraph_rendered_info = next(self.paragraphs[0].render(previous, paragraph_layout_state))
-        if paragraph_rendered_info.height + table_height > layout_state.remaining_page_height:
-            table_height += layout_state.remaining_page_height
-            layout_state.add_height(layout_state.remaining_page_height)
 
         for paragraph in self.paragraphs:
             paragraph_layout_state = copy(layout_state)
