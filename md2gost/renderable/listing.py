@@ -3,9 +3,7 @@ from copy import copy
 import os
 from typing import Generator, Callable
 
-from docx.oxml import CT_Tbl
 from docx.shared import Length, Pt, RGBColor, Twips
-from docx.table import Table
 
 from pygments import highlight
 from pygments.formatter import Formatter
@@ -47,7 +45,7 @@ class DocxParagraphPygmentsFormatter(Formatter):
         self._paragraphs.pop(-1)  # remove last empty line
 
 
-LISTING_OFFSET = Pt(14)
+LISTING_OFFSET = 254800
 
 
 class Listing(Renderable, RequiresNumbering):
@@ -106,7 +104,7 @@ class Listing(Renderable, RequiresNumbering):
         table = self._create_table(self._parent, layout_state.max_width)
         previous = None
 
-        table_height = Pt(1)  # table borders, 4 eights of point for each border
+        table_height = 0
 
         # if first line doesn't fit move listing to the next page
         paragraph_layout_state = copy(layout_state)
@@ -125,7 +123,7 @@ class Listing(Renderable, RequiresNumbering):
                 table_rendered_info = RenderedInfo(table, table_height)
                 yield table_rendered_info
 
-                table_height = Pt(1)  # table borders, 4 eights of point for each border
+                table_height = 0
 
                 continuation_paragraph = Paragraph(self._parent)
                 continuation_paragraph.add_run(f"Продолжение листинга {self._number}")

@@ -145,19 +145,20 @@ class ParagraphSizer:
             for c in run_text:
                 if c == " ":
                     if any(word_parts_widths):
-                        width = spaces*space_width + sum(word_parts_widths)
+                        word_width = sum(word_parts_widths)
+                        width = spaces*space_width + word_width
                         if width <= max_width - line_width:
                             line_width += width
-                        elif width > max_width - first_line_indent:
-                            if lines == 1 and line_width == first_line_indent and not spaces:
-                                lines += ceil((width - (max_width - first_line_indent)) / max_width)
-                                line_width = (width - (max_width - first_line_indent)) % max_width
+                        elif word_width > max_width:
+                            if word_width > max_width - first_line_indent and lines == 1 and line_width == first_line_indent and not spaces:
+                                lines += ceil((word_width - (max_width - first_line_indent)) / max_width)
+                                line_width = (word_width - (max_width - first_line_indent)) % max_width
                             else:
                                 lines += ceil(width / max_width)
                                 line_width = width % max_width
                         else:
                             lines += 1
-                            line_width = sum(word_parts_widths)
+                            line_width = word_width
 
                         word_part = ""
                         word_parts_widths = [0]
