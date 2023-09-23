@@ -1,3 +1,4 @@
+import logging
 import os
 from collections.abc import Generator
 
@@ -27,14 +28,22 @@ class MarkdownParser(Parser):
         """Resolves relative paths in Marko elements"""
         if isinstance(marko_element, Paragraph):
             for child in marko_element.children:
-                if isinstance(child, Image) and not child.dest.startswith(
-                        "http"):
+                if isinstance(child, Image) and\
+                        not child.dest.startswith("http"):
                     child.dest = os.path.join(
                         relative_dir_path, os.path.expanduser(child.dest))
-        if isinstance(marko_element,
-                      (CodeBlock, FencedCode)) and marko_element.extra:
-            marko_element.extra = os.path.join(
-                relative_dir_path, os.path.expanduser(marko_element.extra))
+        if isinstance(marko_element, (CodeBlock, FencedCode))\
+                and marko_element.extra:
+            path = os.path.abspath(os.path.expanduser(os.path.join(
+                relative_dir_path, marko_element.extra.strip())))
+
+            try:
+                with open(path, encoding="utf-8") as f:
+                    marko_element.children[0].children += \
+                        f.read()
+            except FileNotFoundError:
+                logging.warning(
+                    f"Файл с кодом не найден: {path}")
 
     def parse(self, text, relative_dir_path: str)\
             -> Generator[Renderable, None, None]:
