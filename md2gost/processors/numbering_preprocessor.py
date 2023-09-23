@@ -1,11 +1,13 @@
 import logging
 from collections import defaultdict
 
-from .renderable import Renderable, Paragraph
-from .renderable.requires_numbering import RequiresNumbering
+from ..renderable import Renderable, Paragraph
+from ..renderable.requires_numbering import RequiresNumbering
+
+from .processor import Processor
 
 
-class NumberingPreProcessor:
+class NumberingPreProcessor(Processor):
     def __init__(self):
         self._categories: dict[str, int] = defaultdict(lambda: 0)
         self._reference_data: dict[str, int] = dict()

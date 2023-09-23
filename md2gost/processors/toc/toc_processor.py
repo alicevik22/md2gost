@@ -1,9 +1,10 @@
-from .renderable import Renderable
-from .renderable.heading import Heading
-from .renderable.toc import ToC
+from ...renderable import Renderable
+from ...renderable.heading import Heading
+from ...renderable.toc import ToC
+from .. import Processor
 
 
-class TocPreProcessor:
+class TocPreProcessor(Processor):
     def process(self, renderables: list[Renderable]):
         renderables_iter = iter(renderables)
 
@@ -20,7 +21,7 @@ class TocPreProcessor:
                                  renderable.anchor)
 
 
-class TocPostProcessor:
+class TocPostProcessor(Processor):
     def __init__(self, pages_offset: int = 0):
         self._pages_offset = pages_offset
 

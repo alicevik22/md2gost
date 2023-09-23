@@ -8,12 +8,12 @@ from docx.shared import Cm
 
 from .debugger import Debugger
 from .layout_tracker import LayoutTracker
-from .numberer import NumberingPreProcessor
+from md2gost.processors.numbering_preprocessor import NumberingPreProcessor
 from .parser import ParserFactory
 from .renderable import Renderable
-from .title_appender import DocumentMerger
-from .toc_processor import TocPreProcessor, TocPostProcessor
-from .renderer import Renderer
+from .document_merger import DocumentMerger
+from md2gost.processors.toc.toc_processor import TocPreProcessor, TocPostProcessor
+from md2gost.processors.renderer import Renderer
 
 BOTTOM_MARGIN = Cm(1.86)
 
@@ -45,7 +45,8 @@ class Converter:
                 logging.critical(f"Формат входных файлов {extension} не поддерживается")
                 sys.exit(-1)
 
-            self._renderables += list(parser.parse(text, os.path.dirname(path)))
+            self._renderables += \
+                list(parser.parse(text, os.path.dirname(os.path.abspath(path))))
 
         max_height = self._document.sections[-1].page_height - self._document.sections[0] \
             .top_margin - BOTTOM_MARGIN  # - ((136 / 2) * (Pt(1)*72/96))  # todo add bottom margin detection with footer
