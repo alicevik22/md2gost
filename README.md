@@ -14,7 +14,7 @@
 ## Пример
 Markdown-файл: [example.md](https://github.com/witelokk/md2gost/blob/main/examples/example.md).
 
-Сгенерированный файл в zip архиве (комманда `python -m md2gost --syntax-highlighting example.md`): [example.zip](https://nightly.link/witelokk/md2gost/workflows/example-generator/main/example.zip?h=f65c99d31a9379f44fcc6e923de4a735a271d5aa).
+Сгенерированный файл в zip архиве (команда `python -m md2gost --syntax-highlighting example.md`): [example.zip](https://nightly.link/witelokk/md2gost/workflows/example-generator/main/example.zip?h=f65c99d31a9379f44fcc6e923de4a735a271d5aa).
 
 ## Установка
 ```bash
@@ -31,13 +31,13 @@ pipx install git+https://github.com/witelokk/md2gost.git@main
 (python -m ) md2gost [-h] [-o OUTPUT] [-T TITLE] [--title-pages TITLE_PAGES] [--syntax-highlighting | --no-syntax-highlighting] [--debug] [filenames ...]
 ```
 
-При отсутствии флага -o, сгенерированый отчет будет иметь имя с названием исходного файла и расширением .md.
+При отсутствии флага -o, сгенерированный отчет будет иметь имя с названием исходного файла и расширением .md.
 
 ## Фичи
 
 ### Добавление титульной страницы
-Чтобы добавить титульную страницу используйте флаг `--title`(`-T`) с путем до файла с титульной страницей (в формате docx).
-Если в файле более чем одна страница, используйле флаг `--title-pages` с количеством страниц.
+Чтобы добавить титульную страницу, используйте флаг `--title`(`-T`) с путем до файла с титульной страницей (в формате docx).
+Если в файле более чем одна страница, используйте флаг `--title-pages` с количеством страниц.
 
 Пример `md2gost report.md --title title.docx --title-pages 2`
 
@@ -77,9 +77,9 @@ $$
 `uniquename` - уникальное имя для ссылок.
 
 ### Ссылки
-Что-бы вставить кликабельный номер картинки/листинга/etc, используйте
+Чтобы вставить кликабельный номер картинки/листинга/etc, используйте
 ```markdown
-Рис. @unique_name
+Рис. @uniquename
 ```
 
 ### Заголовки для основных разделов
