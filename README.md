@@ -44,12 +44,12 @@ pipx install git+https://github.com/witelokk/md2gost.git@main
 ### Подписи рисунков, листингов, таблиц
 Рисунки:
 ```markdown
-![](path/to/image "%unique_name Caption text")
+![](path/to/image "Caption text")
 ```
 
 Таблицы:
 ```markdown
-%uniquename Caption text
+% Caption text
 
 | a | b | c |
 |---|---|---|
@@ -58,7 +58,7 @@ pipx install git+https://github.com/witelokk/md2gost.git@main
 
 Листинги:
 ~~~markdown
-%uniquename Caption text
+% Caption text
 
 ```python
 print("hello world")
@@ -67,20 +67,29 @@ print("hello world")
 
 Формулы:
 ```markdown
-%uniquename
+%
 
 $$
 2 + 2 = 4
 $$
 ```
 
-`uniquename` - уникальное имя для ссылок.
-
-### Ссылки
+### Ссылки (кросс-референсинг)
 Чтобы вставить кликабельный номер картинки/листинга/etc, используйте
-```markdown
-Рис. @uniquename
+~~~markdown
+![](path/to/image "%pic")
+
+%code
+
+```python
+print("hello world")
 ```
+
+Рис. @pic, листинг @code.
+~~~
+
+Результат:
+![](./images/crossreferencing.png)
 
 ### Заголовки для основных разделов
 Для того чтобы у заголовка не было сквозной нумерации (например для заголовка Содержание), используйте 
