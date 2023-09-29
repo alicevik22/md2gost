@@ -15,7 +15,8 @@ from docx.text.paragraph import Paragraph
 
 from .util import create_element
 
-EMUS_PER_PX = Pt(1)
+SCALE = 5
+
 BOTTOM_MARGIN = Cm(1.86)
 
 
@@ -121,8 +122,9 @@ def add_float_picture(p, image_path_or_stream, width=None, height=None, pos_x=0,
 # refer to docx.oxml.shape.__init__.py
 register_element_cls('wp:anchor', CT_Anchor)
 
+
 def to_px(length: Length) -> int:
-    return round(length / EMUS_PER_PX)
+    return round(length / Pt(1) * SCALE)
 
 
 class _Page:
@@ -190,6 +192,14 @@ class _Page:
         self._i += 1
         return color
 
+    @property
+    def width(self):
+        return self._width
+
+    @property
+    def height(self):
+        return self._height
+
 
 class Debugger:
     def __init__(self, document: Document):
@@ -222,6 +232,8 @@ class Debugger:
             add_float_picture(
                 self._paragraphs_by_page[i],
                 self._pages[i].image,
+                self._pages[i].width,
+                self._pages[i].height
                 # self._document.sections[-1].page_width
             )
 
