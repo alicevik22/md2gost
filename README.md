@@ -67,7 +67,7 @@ print("hello world")
 
 Формулы:
 ```markdown
-%
+%uniquename
 
 $$
 2 + 2 = 4
