@@ -19,8 +19,9 @@ def create_table(parent: Parented, rows: int, cols, width: Length, style="Table 
     table.style = style
 
     # google docs fix
-    table._tbl.tblPr.append(
-        deepcopy(parent.part.styles[style]._element.xpath("w:tblPr/w:tblBorders")[0]))
+    borders = parent.part.styles[style]._element.xpath("w:tblPr/w:tblBorders")
+    if borders:
+        table._tbl.tblPr.append(deepcopy(borders[0]))
     for i in range(rows):
         for j in range(cols):
             cell = table.cell(i, j)
