@@ -1,7 +1,7 @@
 from copy import copy
 from typing import Generator
 
-from docx.shared import Parented, Pt, Twips
+from docx.shared import Parented, Pt, Twips, Cm
 
 from . import Paragraph
 from .caption import Caption, CaptionInfo
@@ -11,7 +11,9 @@ from ..docx_elements import *
 from ..layout_tracker import LayoutState
 from ..rendered_info import RenderedInfo
 
-CELL_OFFSET = Pt(10)
+# CELL_OFFSET = 200000
+# CELL_OFFSET = 100965
+CELL_OFFSET = Cm(0.3795)
 
 
 class Table(Renderable, RequiresNumbering):
@@ -55,7 +57,7 @@ class Table(Renderable, RequiresNumbering):
 
         docx_table = create_table(self._parent, 0, self._cols, self._table_width)
 
-        table_height = Pt(0.5)  # top border
+        table_height = Pt(1.5)
 
         for row in self._rows:
             docx_row = create_table_row(docx_table)
@@ -74,13 +76,14 @@ class Table(Renderable, RequiresNumbering):
                     row_height = max(cell_height, row_height)
                 docx_row._element.append(docx_cell._element)
 
-            row_height += Pt(0.5)  # bottom row border
+            row_height += Pt(0.5)
 
             if row_height > layout_state.remaining_page_height:
                 table_rendered_info = RenderedInfo(docx_table, table_height)
                 yield table_rendered_info
 
-                table_height = Pt(0.5)  # top border
+                # borders do not take space in the beginning of the page
+                table_height = 0
 
                 continuation_paragraph = Paragraph(self._parent)
                 continuation_paragraph.add_run(f"Продолжение таблицы ")

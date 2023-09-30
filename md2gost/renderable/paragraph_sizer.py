@@ -157,7 +157,7 @@ class ParagraphSizer:
     def split_lines(self):
         space_width = self.font.get_text_width(" ")
         if not self.font.is_mono:
-            space_width *= 0.83
+            space_width *= 0.825
 
         text = "".join([run.text for run in self.runs])
 
