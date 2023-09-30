@@ -3,9 +3,7 @@ from copy import copy
 import os
 from typing import Generator, Callable
 
-from docx.oxml import CT_Tbl
 from docx.shared import Length, Pt, RGBColor, Twips
-from docx.table import Table
 
 from pygments import highlight
 from pygments.formatter import Formatter
@@ -13,7 +11,7 @@ from pygments.lexers import get_lexer_by_name
 from pygments.util import ClassNotFound
 
 from .caption import Caption, CaptionInfo
-from .paragraph import Paragraph
+from .paragraph import Paragraph, Reference
 from .renderable import Renderable
 from .requires_numbering import RequiresNumbering
 from ..docx_elements import create_table
@@ -47,7 +45,7 @@ class DocxParagraphPygmentsFormatter(Formatter):
         self._paragraphs.pop(-1)  # remove last empty line
 
 
-LISTING_OFFSET = Pt(14)
+LISTING_OFFSET = 254635
 
 
 class Listing(Renderable, RequiresNumbering):
@@ -106,15 +104,7 @@ class Listing(Renderable, RequiresNumbering):
         table = self._create_table(self._parent, layout_state.max_width)
         previous = None
 
-        table_height = Pt(1)  # table borders, 4 eights of point for each border
-
-        # if first line doesn't fit move listing to the next page
-        paragraph_layout_state = copy(layout_state)
-        paragraph_layout_state.max_width -= LISTING_OFFSET
-        paragraph_rendered_info = next(self.paragraphs[0].render(previous, paragraph_layout_state))
-        if paragraph_rendered_info.height + table_height > layout_state.remaining_page_height:
-            table_height += layout_state.remaining_page_height
-            layout_state.add_height(layout_state.remaining_page_height)
+        table_height = Pt(1)  # borders
 
         for paragraph in self.paragraphs:
             paragraph_layout_state = copy(layout_state)
@@ -125,10 +115,14 @@ class Listing(Renderable, RequiresNumbering):
                 table_rendered_info = RenderedInfo(table, table_height)
                 yield table_rendered_info
 
-                table_height = Pt(1)  # table borders, 4 eights of point for each border
+                # borders do not take space in the beginning of the page
+                table_height = 0
 
                 continuation_paragraph = Paragraph(self._parent)
-                continuation_paragraph.add_run(f"Продолжение листинга {self._number}")
+                continuation_paragraph.add_run(f"Продолжение листинга ")
+                continuation_paragraph\
+                    .add_reference(self._caption_info.unique_name)\
+                    .set_number(self._number)
                 continuation_paragraph.style = "Caption"
                 continuation_paragraph.first_line_indent = 0
                 continuation_paragraph.page_break_before = True

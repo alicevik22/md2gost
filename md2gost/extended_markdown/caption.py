@@ -8,7 +8,7 @@ class Caption(BlockElement):
 
     Syntax: %Type:label Caption text"""
 
-    pattern = r"\%(\w+)( (.+))?"
+    pattern = r"\%(\w+)?( (.+))?"
 
     def __init__(self, match: Match[str]):
         self.unique_name = match.group(1)

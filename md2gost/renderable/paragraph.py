@@ -34,18 +34,14 @@ class Link:
     def add_run(self, text: str, is_bold: bool = None, is_italic: bool = None, color: RGBColor = None,
                 strike_through: bool = None):
 
-        parts = text.split("-")
-        for i, part in enumerate(parts):
-            docx_run = DocxRun(create_element("w:r"), self._docx_paragraph)
-            self._hyperlink.append(docx_run._element)
-            docx_run.text = part
-            docx_run.style = self._style
-            docx_run.bold = is_bold
-            docx_run.italic = is_italic
-            docx_run.font.color.rgb = color
-            docx_run.font.strike = strike_through
-            if i != len(parts) - 1:
-                self._hyperlink.append(create_element("w:r", [create_element("w:noBreakHyphen")]))
+        docx_run = DocxRun(create_element("w:r"), self._docx_paragraph)
+        self._hyperlink.append(docx_run._element)
+        docx_run.text = text
+        docx_run.style = self._style
+        docx_run.bold = is_bold
+        docx_run.italic = is_italic
+        docx_run.font.color.rgb = color
+        docx_run.font.strike = strike_through
 
     @property
     def element(self):
@@ -77,25 +73,20 @@ class Paragraph(Renderable):
 
     def add_run(self, text: str, is_bold: bool = None, is_italic: bool = None, color: RGBColor = None,
                 strike_through: bool = None):
-        # replace all hyphens with non-breaking hyphens
-        parts = text.split("-")
-        for i, part in enumerate(parts):
-            docx_run = self._docx_paragraph.add_run(part)
-            docx_run.bold = is_bold
-            docx_run.italic = is_italic
-            docx_run.font.color.rgb = color
-            docx_run.font.strike = strike_through
-            if i != len(parts)-1:
-                self._docx_paragraph.add_run()._element.\
-                    append(create_element("w:noBreakHyphen"))
+        docx_run = self._docx_paragraph.add_run(text)
+        docx_run.bold = is_bold
+        docx_run.italic = is_italic
+        docx_run.font.color.rgb = color
+        docx_run.font.strike = strike_through
 
     @property
     def references(self) -> list[Reference]:
         return self._references
 
-    def add_reference(self, unique_name: str):
+    def add_reference(self, unique_name: str) -> Reference:
         self._references.append(Reference(unique_name))
         self._docx_paragraph._p.append(self._references[-1].element())
+        return self._references[-1]
 
     def add_link_url(self, url: str, style="Hyperlink"):
         link = Link(self._docx_paragraph, style)

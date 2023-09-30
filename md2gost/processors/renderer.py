@@ -4,15 +4,16 @@ from docx.document import Document
 from docx.shared import Length, Cm, Parented, Pt
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 
-from .renderable import Renderable
-from .util import create_element
-from .layout_tracker import LayoutTracker
+from ..renderable import Renderable
+from ..util import create_element
+from ..layout_tracker import LayoutTracker
+from . import Processor
 
 if TYPE_CHECKING:
-    from .debugger import Debugger
+    from ..debugger import Debugger
 
 
-class Renderer:
+class Renderer(Processor):
     """Renders Renderable elements to docx file"""
 
     def __init__(self, document: Document, layout_tracker: LayoutTracker, debugger: "Debugger | None" = None):

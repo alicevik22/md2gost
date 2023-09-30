@@ -1,7 +1,5 @@
 import logging
-import os
 from functools import singledispatchmethod
-from os import environ
 from typing import Generator
 
 from docx.shared import Parented, RGBColor
@@ -82,19 +80,17 @@ class RenderableFactory:
         listing = Listing(self._parent, marko_code_block.lang, caption_info)
 
         text = marko_code_block.children[0].children
-        if marko_code_block.extra:
-            try:
-                with open(marko_code_block.extra, encoding="utf-8") as f:
-                    text = f.read() + text
-            except FileNotFoundError:
-                logging.warning(f"Файл с кодом не найден: {marko_code_block.extra}")
 
         listing.set_text(text)
         yield listing
 
     @create.register
     def _(self, marko_thematic_break: extended_markdown.ThematicBreak, caption_info: CaptionInfo):
-        yield from []
+        yield from []  # ignore
+
+    @create.register
+    def _(self, _: extended_markdown.LinkRefDef, caption_info: CaptionInfo):
+        yield from []  # ignore
 
     @create.register
     def _(self, marko_equation: extended_markdown.Equation, caption_info: CaptionInfo):

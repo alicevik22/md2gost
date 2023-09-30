@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from functools import cached_property
-from math import ceil
+from uniseg.linebreak import line_break_units
 
 from docx.enum.text import WD_LINE_SPACING
 from docx.oxml import CT_R
@@ -37,12 +37,12 @@ class Font:
 
     def get_line_height(self) -> Length:
         # TODO: make it work for all fonts
-        if "Times" in str(self._face.family_name) and self._freetypefont.size == 14:
-            return Pt(16.05)
+        # if "Times" in str(self._face.family_name) and self._freetypefont.size == 14:
+        #     return Pt(16.05)
         if "Courier" in str(self._face.family_name) and self._freetypefont.size == 12:
-            return Pt(13.61)
-        else:
-            return Pt(self._face.size.height / 64)
+            return Pt(13.62)
+        # else:
+        return Pt(self._face.size.height / 64)
 
     @cached_property
     def is_mono(self):
@@ -81,6 +81,30 @@ class ParagraphSizer:
 
         self.same_style_as_previous = (paragraph.style == previous_paragraph.style) if previous_paragraph else False
 
+        # Load properties
+        self.docx_font: DocxFont = merge_objects(
+            *[style.font for style in self._styles[::-1] if style.font],
+            self.paragraph.style.font)
+
+        self.paragraph_format: ParagraphFormat = merge_objects(
+            *[style.paragraph_format for style in self._styles[::-1]
+              if style.paragraph_format],
+            self.paragraph.paragraph_format
+        )
+
+        self.font = Font(self.docx_font.name, self.docx_font.bold, self.docx_font.italic, self.docx_font.size.pt)
+
+        # here self.paragraph.runs is not used because it does not always return
+        # all runs (e.g. if they are inside hyperlink)
+        self.runs = []
+        for element in self.paragraph._element.getiterator():
+            if isinstance(element, CT_R):
+                self.runs.append(Run(element, self.paragraph))
+
+        self.max_width -= (self.paragraph_format.left_indent or 0) + \
+            (self.paragraph_format.right_indent or 0)
+
+
     @cached_property
     def _default_style(self):
 
@@ -113,91 +137,74 @@ class ParagraphSizer:
                 break
         return contextual_spacing
 
-    def count_lines(self, runs: list[Run], max_width: Length, docx_font: DocxFont, first_line_indent: Length,
-                    is_mono: bool = False):
-        lines = 1
-        line_width = first_line_indent
+    def get_text_width(self, start: int, end: int):
+        width = 0
+        pos = 0
+        for i, run in enumerate(self.runs):
+            if pos > end:
+                return width
+            run_font_size = run.font.size.pt if run.font.size else None
+            font = Font(
+                run.font.name or self.docx_font.name,
+                run.font.bold or self.docx_font.bold,
+                run.font.italic or self.docx_font.italic,
+                run_font_size or self.docx_font.size.pt)
+            if pos + len(run.text) >= start:
+                width += font.get_text_width(run.text[max(0, start-pos):end-pos])
+            pos += len(run.text)
+        return width
 
-        space_width = Font(docx_font.name, docx_font.bold, docx_font.italic, docx_font.size.pt).get_text_width(" ")
-        if not is_mono:
-            space_width *= 0.81
+    def split_lines(self):
+        space_width = self.font.get_text_width(" ")
+        if not self.font.is_mono:
+            space_width *= 0.825
 
-        word_part = ""
-        word_parts_widths = [0]
-        spaces = 0
-        for i, run in enumerate(runs):
-            if word_part:
-                word_part = ""
-                word_parts_widths.append(0)
+        text = "".join([run.text for run in self.runs])
 
-            run_docx_font = merge_objects(
-                docx_font,
-                run.font
-            )
-            font = Font(run_docx_font.name, run_docx_font.bold, run_docx_font.italic, run_docx_font.size.pt)
+        def tailor(s, breakables):
+            breakables = list(breakables)
+            for i in range(1, len(s)-1):
+                if s[i] in ("/", ):
+                    if s[i-1] == " ":
+                        breakables[i] = 1
+                    breakables[i+1] = 0
+                if s[i] in ("$",) and s[i-1] not in {" ", "-", "—", "–"}:
+                    breakables[i] = 0
+            return breakables
 
-            run_text = run.text
-            if run_text == "" and run._element.xpath("w:noBreakHyphen"):
-                run_text = "-"
-            if i == len(runs) - 1:
-                run_text += " "  # add space to the end of the last run, so it adds the last word
+        line_width = self.paragraph_format.first_line_indent or 0
+        lines = [""]
+        pos = 0
+        for unit in line_break_units(text, tailor=tailor):
+            spaces = len(unit) - len(unit.rstrip())
+            no_spaces_width = self.get_text_width(pos, pos+len(unit)-spaces)
+            full_width = no_spaces_width + spaces*space_width
+            if no_spaces_width <= self.max_width - line_width:
+                line_width += full_width
+                lines[-1] += unit
+            elif no_spaces_width > self.max_width:
+                if lines[-1] == "":
+                    lines.pop(-1)
+                i = 0
+                for j in range(len(unit)+1):
+                    part_width = self.get_text_width(pos+i, pos+j)
+                    if not self.font.is_mono:
+                        part_width *= 1.001  # word compresses characters
+                        # to fit one more character into the line
+                    if part_width > (self.max_width if len(lines) != 0 else self.max_width-(self.paragraph_format.first_line_indent or 0)):
+                        lines.append(unit[i:j-1])
+                        i = j-1
+                lines.append(unit[i:])
+                line_width = self.font.get_text_width(unit[i:])
+            else:
+                lines.append(unit)
+                line_width = full_width
+            pos += len(unit)
 
-            for c in run_text:
-                if c == " ":
-                    if any(word_parts_widths):
-                        width = spaces*space_width + sum(word_parts_widths)
-                        if width <= max_width - line_width:
-                            line_width += width
-                        elif width > max_width - first_line_indent:
-                            if lines == 1 and line_width == first_line_indent and not spaces:
-                                lines += ceil((width - (max_width - first_line_indent)) / max_width)
-                                line_width = (width - (max_width - first_line_indent)) % max_width
-                            else:
-                                lines += ceil(width / max_width)
-                                line_width = width % max_width
-                        else:
-                            lines += 1
-                            line_width = sum(word_parts_widths)
-
-                        word_part = ""
-                        word_parts_widths = [0]
-                        spaces = 1
-                    else:
-                        spaces += 1
-                else:
-                    word_part += c
-                    word_parts_widths[-1] = font.get_text_width(word_part)
-
-        return int(lines)
+        return [line.rstrip() for line in lines]
 
     def calculate_height(self) -> ParagraphSizerResult:
-        max_width = self.max_width
-
-        docx_font: DocxFont = merge_objects(
-            *[style.font for style in self._styles[::-1] if style.font],
-            self.paragraph.style.font)
-
-        paragraph_format: ParagraphFormat = merge_objects(
-            *[style.paragraph_format for style in self._styles[::-1]
-              if style.paragraph_format],
-            self.paragraph.paragraph_format
-        )
-
-        max_width -= (paragraph_format.left_indent or 0) + \
-            (paragraph_format.right_indent or 0)
-
-        font = Font(docx_font.name, docx_font.bold, docx_font.italic, docx_font.size.pt)
-
-        # here self.paragraph.runs is not used because
-        # it does not always return all runs (e.g. if they are inside hyperlink)
-        runs = []
-        for element in self.paragraph._element.getiterator():
-            if isinstance(element, CT_R):
-                runs.append(Run(element, self.paragraph))
-
-        lines = self.count_lines(runs, max_width, docx_font,
-                                 (paragraph_format.first_line_indent or 0) + self._tabs_size,
-                                 font.is_mono)
+        lines = len(self.split_lines())
 
         previous_paragraph_format: ParagraphFormat = None
         if self.previous_paragraph:
@@ -216,18 +223,18 @@ class ParagraphSizer:
         if self._is_contextual_spacing and self.same_style_as_previous:
             before = (previous_paragraph_format.space_after or 0)
         else:
-            before = (paragraph_format.space_before or 0)
+            before = (self.paragraph_format.space_before or 0)
             if previous_paragraph_format:
                 before = max(0, before - (previous_paragraph_format.space_after or 0))
 
-        after = (paragraph_format.space_after or 0)
+        after = (self.paragraph_format.space_after or 0)
 
-        line_height = font.get_line_height()
-        line_spacing = paragraph_format.line_spacing
-        if paragraph_format.line_spacing_rule == WD_LINE_SPACING.EXACTLY:
+        line_height = self.font.get_line_height()
+        line_spacing = self.paragraph_format.line_spacing
+        if self.paragraph_format.line_spacing_rule == WD_LINE_SPACING.EXACTLY:
             line_spacing /= line_height
             # raise NotImplementedError("Line spacing rule AT_LEAST is not supported")
-        elif paragraph_format.line_spacing_rule == WD_LINE_SPACING.AT_LEAST:
+        elif self.paragraph_format.line_spacing_rule == WD_LINE_SPACING.AT_LEAST:
             raise NotImplementedError("Line spacing rule AT_LEAST is not supported")
 
         return ParagraphSizerResult(before, lines, line_height, line_spacing, after)
