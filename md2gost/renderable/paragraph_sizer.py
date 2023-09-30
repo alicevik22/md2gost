@@ -150,7 +150,7 @@ class ParagraphSizer:
                 run.font.italic or self.docx_font.italic,
                 run_font_size or self.docx_font.size.pt)
             if pos + len(run.text) >= start:
-                width += font.get_text_width(run.text[start-pos:end-pos])
+                width += font.get_text_width(run.text[max(0, start-pos):end-pos])
             pos += len(run.text)
         return width
 
