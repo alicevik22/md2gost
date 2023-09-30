@@ -86,7 +86,11 @@ class RenderableFactory:
 
     @create.register
     def _(self, marko_thematic_break: extended_markdown.ThematicBreak, caption_info: CaptionInfo):
-        yield from []
+        yield from []  # ignore
+
+    @create.register
+    def _(self, _: extended_markdown.LinkRefDef, caption_info: CaptionInfo):
+        yield from []  # ignore
 
     @create.register
     def _(self, marko_equation: extended_markdown.Equation, caption_info: CaptionInfo):
