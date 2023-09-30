@@ -104,7 +104,7 @@ class Listing(Renderable, RequiresNumbering):
         table = self._create_table(self._parent, layout_state.max_width)
         previous = None
 
-        table_height = 0
+        table_height = Pt(1)  # borders
 
         for paragraph in self.paragraphs:
             paragraph_layout_state = copy(layout_state)
@@ -115,6 +115,7 @@ class Listing(Renderable, RequiresNumbering):
                 table_rendered_info = RenderedInfo(table, table_height)
                 yield table_rendered_info
 
+                # borders do not take space in the beginning of the page
                 table_height = 0
 
                 continuation_paragraph = Paragraph(self._parent)
