@@ -39,7 +39,7 @@ pipx install git+https://github.com/witelokk/md2gost.git@main
 Чтобы добавить титульную страницу, используйте флаг `--title`(`-T`) с путем до файла с титульной страницей (в формате docx).
 Если в файле более чем одна страница, используйте флаг `--title-pages` с количеством страниц.
 
-Пример `md2gost report.md --title title.docx --title-pages 2`
+Пример: `md2gost report.md --title title.docx --title-pages 2`.
 
 ### Подписи рисунков, листингов, таблиц
 Рисунки:
@@ -103,11 +103,11 @@ print("hello world")
 ```
 
 ### Подсветка синтаксиса в листингах
-Используйте флаг ```--syntax-highlighting```
+Используйте флаг ```--syntax-highlighting```.
 
 ### Импорт кода в листингах
 ~~~markdown
 ```python code.py
 ```
 ~~~
-где `code.py` - путь до файла с кодом
+`code.py` - путь до файла с кодом.
