@@ -6,6 +6,7 @@ from docx import Document
 from marko.block import BlankLine, Paragraph, CodeBlock, FencedCode, \
     BlockElement
 from marko.inline import Image
+from uuid import uuid4
 
 from md2gost.extended_markdown import markdown, Caption
 from md2gost.renderable.caption import CaptionInfo
@@ -21,7 +22,6 @@ class MarkdownParser(Parser):
     def __init__(self, document: Document):
         self._document = document
         self._factory = RenderableFactory(self._document._body)
-        self._caption_info: CaptionInfo | None = None
 
     @staticmethod
     def resolve_paths(marko_element: BlockElement, relative_dir_path: str):
@@ -48,6 +48,7 @@ class MarkdownParser(Parser):
     def parse(self, text, relative_dir_path: str)\
             -> Generator[Renderable, None, None]:
         marko_parsed = markdown.parse(text)
+        caption_info = CaptionInfo(uuid4().hex, None)
         for marko_element in marko_parsed.children:
             self.resolve_paths(marko_element, relative_dir_path)
 
@@ -55,9 +56,9 @@ class MarkdownParser(Parser):
                 continue
 
             if isinstance(marko_element, Caption):
-                self._caption_info =\
+                caption_info =\
                     CaptionInfo(marko_element.unique_name, marko_element.text)
                 continue
 
-            yield from self._factory.create(marko_element, self._caption_info)
-            self._caption_info = None
+            yield from self._factory.create(marko_element, caption_info)
+            caption_info = CaptionInfo(uuid4().hex, None)

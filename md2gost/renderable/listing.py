@@ -11,7 +11,7 @@ from pygments.lexers import get_lexer_by_name
 from pygments.util import ClassNotFound
 
 from .caption import Caption, CaptionInfo
-from .paragraph import Paragraph
+from .paragraph import Paragraph, Reference
 from .renderable import Renderable
 from .requires_numbering import RequiresNumbering
 from ..docx_elements import create_table
@@ -118,7 +118,10 @@ class Listing(Renderable, RequiresNumbering):
                 table_height = 0
 
                 continuation_paragraph = Paragraph(self._parent)
-                continuation_paragraph.add_run(f"Продолжение листинга {self._number}")
+                continuation_paragraph.add_run(f"Продолжение листинга ")
+                continuation_paragraph\
+                    .add_reference(self._caption_info.unique_name)\
+                    .set_number(self._number)
                 continuation_paragraph.style = "Caption"
                 continuation_paragraph.first_line_indent = 0
                 continuation_paragraph.page_break_before = True

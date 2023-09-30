@@ -83,9 +83,10 @@ class Paragraph(Renderable):
     def references(self) -> list[Reference]:
         return self._references
 
-    def add_reference(self, unique_name: str):
+    def add_reference(self, unique_name: str) -> Reference:
         self._references.append(Reference(unique_name))
         self._docx_paragraph._p.append(self._references[-1].element())
+        return self._references[-1]
 
     def add_link_url(self, url: str, style="Hyperlink"):
         link = Link(self._docx_paragraph, style)
