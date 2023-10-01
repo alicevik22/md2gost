@@ -57,17 +57,20 @@ class RenderableFactory:
         paragraph = Paragraph(self._parent)
 
         all_images = True
+        images = []
         for child in marko_paragraph.children:
             if isinstance(child, extended_markdown.Image):
-                yield Image(self._parent, child.dest, CaptionInfo(child.unique_name, child.title))
+                images.append(
+                    Image(self._parent, child.dest,
+                          CaptionInfo(child.unique_name, child.title)))
             else:
                 all_images = False
 
-        if all_images:
-            return
+        if not all_images:
+            RenderableFactory._create_runs(paragraph, marko_paragraph.children)
+            yield paragraph
 
-        RenderableFactory._create_runs(paragraph, marko_paragraph.children)
-        yield paragraph
+        yield from images
 
     @create.register
     def _(self, marko_heading: extended_markdown.Heading | extended_markdown.SetextHeading, caption_info: CaptionInfo):
