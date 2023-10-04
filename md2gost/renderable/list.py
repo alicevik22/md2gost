@@ -4,8 +4,8 @@ from typing import Generator
 from docx.shared import Pt, Cm, Twips
 
 from . import Paragraph
+from .image import Image
 from .renderable import Renderable
-from ..extended_markdown import Image
 from ..layout_tracker import LayoutState
 from ..rendered_info import RenderedInfo
 
@@ -45,6 +45,9 @@ class List(Renderable):
         self._items.append(paragraph)
         self._items += images
         return paragraph
+
+    def get_images(self) -> list[Image]:
+        return [x for x in self._items if isinstance(x, Image)]
 
     def render(self, previous_rendered: RenderedInfo, layout_state: LayoutState) -> Generator[
             RenderedInfo | Renderable, None, None]:
