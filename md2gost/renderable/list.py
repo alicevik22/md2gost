@@ -5,6 +5,7 @@ from docx.shared import Pt, Cm, Twips
 
 from . import Paragraph
 from .renderable import Renderable
+from ..extended_markdown import Image
 from ..layout_tracker import LayoutState
 from ..rendered_info import RenderedInfo
 
@@ -16,12 +17,12 @@ class List(Renderable):
     def __init__(self, parent, ordered: bool):
         self._parent = parent
         self._ordered = ordered
-        self._paragraphs: list[Paragraph] = []
+        self._items: list[Paragraph | Image] = []
         self._last_paragraph_space_after = 0
 
         self._numbering = [0 for _ in range(10)]
 
-    def add_item(self, level: int) -> Paragraph:
+    def add_item(self, images: list[Image], level: int) -> Paragraph:
         self._numbering[level - 1] += 1
         for i in range(level, len(self._numbering)):
             self._numbering[i] = 0
@@ -41,14 +42,15 @@ class List(Renderable):
         paragraph._docx_paragraph.paragraph_format.space_before = 0
         paragraph._docx_paragraph.paragraph_format.space_after = 0
 
-        self._paragraphs.append(paragraph)
+        self._items.append(paragraph)
+        self._items += images
         return paragraph
 
     def render(self, previous_rendered: RenderedInfo, layout_state: LayoutState) -> Generator[
             RenderedInfo | Renderable, None, None]:
-        self._paragraphs[-1]._docx_paragraph.paragraph_format.space_after = self._last_paragraph_space_after
+        self._items[-1]._docx_paragraph.paragraph_format.space_after = self._last_paragraph_space_after
 
-        for paragraph in self._paragraphs:
+        for paragraph in self._items:
             for x in paragraph.render(previous_rendered, copy(layout_state)):
                 layout_state.add_height(x.height)
                 previous_rendered = x

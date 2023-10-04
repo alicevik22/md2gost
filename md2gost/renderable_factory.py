@@ -52,21 +52,21 @@ class RenderableFactory:
                                           color=RGBColor.from_string("FF0000"))
                 logging.warning(f"{child.get_type()} не поддерживается")
 
-    @create.register
-    def _(self, marko_paragraph: extended_markdown.Paragraph, caption_info: CaptionInfo):
-        paragraph = Paragraph(self._parent)
-
-        all_images = True
+    def _create_images(self, marko_paragraph: extended_markdown.Paragraph):
         images = []
         for child in marko_paragraph.children:
             if isinstance(child, extended_markdown.Image):
                 images.append(
                     Image(self._parent, child.dest,
                           CaptionInfo(child.unique_name, child.title)))
-            else:
-                all_images = False
+        return images
 
-        if not all_images:
+    @create.register
+    def _(self, marko_paragraph: extended_markdown.Paragraph, caption_info: CaptionInfo):
+        paragraph = Paragraph(self._parent)
+
+        images = self._create_images(marko_paragraph)
+        if not len(images) == len(marko_paragraph.children):
             RenderableFactory._create_runs(paragraph, marko_paragraph.children)
             yield paragraph
 
@@ -104,20 +104,20 @@ class RenderableFactory:
     def _(self, marko_list: extended_markdown.List, caption_info: CaptionInfo):
         list_ = List(self._parent, marko_list.ordered)
 
-        def create_items_from_marko(marko_list_, level=1):
+        images = []
+        def create_items_from_marko(marko_list_, images, level=1):
             for list_item in marko_list_.children:
                 for child in list_item.children:
                     if isinstance(child, extended_markdown.List):
-                        create_items_from_marko(child, level + 1)
+                        create_items_from_marko(child, images, level + 1)
                     elif isinstance(child, extended_markdown.Paragraph):
-                        RenderableFactory._create_runs(
-                            list_.add_item(level),
-                            child.children
-                        )
+                        item = list_.add_item(self._create_images(child), level)
+                        RenderableFactory._create_runs(item, child.children)
 
-        create_items_from_marko(marko_list)
+        create_items_from_marko(marko_list, images)
 
         yield list_
+        yield from images
 
     @create.register
     def _(self, marko_table: extended_markdown.Table, caption_info: CaptionInfo):
