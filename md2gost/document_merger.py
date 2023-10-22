@@ -5,6 +5,7 @@ from docx.oxml.ns import qn
 from docx.oxml import CT_P, CT_Tbl, CT_Blip
 from docx.styles.style import _ParagraphStyle
 from docx.text.paragraph import Paragraph
+from docx.text.parfmt import ParagraphFormat
 
 from md2gost.util import merge_objects
 
@@ -17,10 +18,10 @@ class DocumentMerger:
         # copy element styles to element
         default_style_element = type("DefaultStyle", (), {})
         default_style_element.rPr = \
-            self._document.styles.element.xpath(
+            other_document.styles.element.xpath(
                 'w:docDefaults/w:rPrDefault/w:rPr')[0]
         default_style_element.pPr = \
-            self._document.part.document.styles.element.xpath(
+            other_document.part.document.styles.element.xpath(
                 'w:docDefaults/w:pPrDefault/w:pPr')[0]
         default_style = _ParagraphStyle(default_style_element)
 
