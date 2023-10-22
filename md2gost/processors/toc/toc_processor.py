@@ -38,5 +38,5 @@ class TocPostProcessor(Processor):
             i = 0
             for renderable in renderables_iter:
                 if isinstance(renderable, Heading):
-                    toc.set_page(i, renderable.rendered_page + self._pages_offset)
+                    toc.set_page(i, renderable.rendered_page)
                     i += 1

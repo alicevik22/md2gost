@@ -60,6 +60,8 @@ class Converter:
             self._pages_offset = title_pages
             merger = DocumentMerger(self._document)
             merger.append(title_document, title_pages)
+            for _ in range(title_pages-1):
+                self._layout_tracker.new_page()
 
     def convert(self):
         processors = [

@@ -51,3 +51,4 @@ class LayoutTracker:
 
     def new_page(self):
         self._state.new_page()
+

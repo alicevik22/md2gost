@@ -91,7 +91,8 @@ class Heading(Paragraph):
             if previous_rendered and isinstance(previous_rendered.docx_element, DocxParagraph) else None,
             layout_state.max_width, Cm(1.25)).calculate_height()
 
-        if layout_state.current_page_height == 0 and layout_state.page != 1:
+        if (layout_state.current_page_height == 0 and layout_state.page != 1)\
+                or self.page_break_before:
             height_data.before = 0
 
         # if a heading + 3 lines don't fit to the page, they go to the next page

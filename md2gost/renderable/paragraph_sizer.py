@@ -172,7 +172,7 @@ class ParagraphSizer:
                     breakables[i] = 0
             return breakables
 
-        line_width = self.paragraph_format.first_line_indent or 0
+        line_width = (self.paragraph_format.first_line_indent or 0) + self._tabs_size
         lines = [""]
         pos = 0
         for unit in line_break_units(text, tailor=tailor):
@@ -191,7 +191,7 @@ class ParagraphSizer:
                     if not self.font.is_mono:
                         part_width *= 1.001  # word compresses characters
                         # to fit one more character into the line
-                    if part_width > (self.max_width if len(lines) != 0 else self.max_width-(self.paragraph_format.first_line_indent or 0)):
+                    if part_width > (self.max_width if len(lines) != 0 else self.max_width-((self.paragraph_format.first_line_indent or 0) + self._tabs_size)):
                         lines.append(unit[i:j-1])
                         i = j-1
                 lines.append(unit[i:])
